@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="msapplication-square70x70logo" content="https://www.constitutionofindia.net/wp-content/themes/cad/assets/images/favicons/mstile-70x70.png">
+    <title>Indian Constitution Explorer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f5;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .heading{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 10px;
+        }
+
+        .heading .search{
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .heading .search #searchInput {
+            padding: 15px;
+            width: 500px;
+            font-size: 1.4em;
+            outline: none;
+            border-radius: 20px;
+        }
+
+        .heading .search button {
+            padding: 15px 30px;
+            background-color: #046838;
+            font-size: 1.4em;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .parts-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .part-block {
+            background-color: #FF671F;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 250px;
+            cursor: pointer;
+            transition: background-color 0.3s, width 0.3s;
+            position: relative;
+        }
+
+        .part-block.selected {
+            background-color: #FF671F;
+            opacity: 0.66;
+            color: white;
+            width: 100%; /* Full row when selected */
+        }
+
+        .part-block:hover {
+            background-color: #046838;
+        }
+
+        .part-block .category {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(255,255,255,0.3);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .articles-container {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .articles-container.active {
+            display: block;
+            width: 100%;
+        }
+
+        .articles-container .article-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .article-button {
+            background-color: #06038D;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 14px;
+        }
+
+        .article-button:hover {
+            background-color: #007B9E;
+        }
+
+        .article-detail {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fff;
+            border-left: 4px solid #4CAF50;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .part-block {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="heading">
+        <h1>INDIAN CONSTITUTION EXPLORER</h1>
+        <div class="search">
+            <input type="text" id="searchInput" placeholder="Search by part number or article number">
+
+            <button onclick="searchByPartNumber()">Search</button>
+        </div>
+        .suggestion
+    </div>
+    
+
+    <div class="parts-container" id="partsContainer">
+        <!-- Part blocks will be dynamically inserted here -->
+    </div>
+
+    <div id="articleDetail"></div>
+
+    <script>
+        // Data Structure for Parts and Articles
+        const constitutionParts = [
+    {
+        partNumber: 1,
+        partName: "The Union and its Territory",
+        articles: [
+            { number: "1", title: "Article 1", explanation: "Name and territory of the Union.", example: "India shall be a Union of States, and its territory shall include the States, Union territories, and such other territories as may be acquired." },
+            { number: "2", title: "Article 2", explanation: "Admission or establishment of new States.", example: "Parliament may by law admit into the Union, or establish, new States on such terms and conditions as it thinks fit." },
+            { number: "3", title: "Article 3", explanation: "Formation of new States and alteration of areas, boundaries or names of existing States.", example: "A new State of Telangana was formed by bifurcating Andhra Pradesh in 2014 under the provisions of this article." },
+            { number: "4", title: "Article 4", explanation: "Legislative powers of the Union and the States.", example: "Changes to the states' boundaries do not require a constitutional amendment but must be passed by a simple majority in Parliament." }
+        ],
+        category: "General Provisions"
+    },
+    {
+        partNumber: 2,
+        partName: "Citizenship",
+        articles: [
+            { number: "5", title: "Article 5", explanation: "Citizenship at the commencement of the Constitution.", example: "Persons born in India and domiciled in India at the time of the Constitution's commencement were granted Indian citizenship." },
+            { number: "6", title: "Article 6", explanation: "Citizenship of certain persons who have migrated to India from Pakistan.", example: "Individuals who migrated from Pakistan to India before July 19, 1948, were granted citizenship, provided they met certain conditions." },
+            { number: "7", title: "Article 7", explanation: "Rights of citizenship of certain migrants to Pakistan.", example: "This article restricted citizenship rights of individuals who migrated from India to Pakistan after March 1, 1947, but allowed certain exceptions." },
+            { number: "8", title: "Article 8", explanation: "Rights of citizenship of certain persons of Indian origin residing outside India.", example: "Persons of Indian origin residing in another country, but who hold a domicile in India, could acquire citizenship." },
+            { number: "9", title: "Article 9", explanation: "Persons voluntarily acquiring citizenship of a foreign State not to be citizens.", example: "If a person voluntarily acquired the citizenship of a foreign country, they would cease to be an Indian citizen." },
+            { number: "10", title: "Article 10", explanation: "Continuance of the rights of citizenship.", example: "The rights of citizenship, once acquired, remain unless otherwise revoked by law." },
+            { number: "11", title: "Article 11", explanation: "Parliament to regulate the right of citizenship by law.", example: "The Citizenship Act of 1955 was enacted under the powers conferred by this article to regulate citizenship rights." }
+        ],
+        category: "General Provisions"
+    },
+    {
+        partNumber: 3,
+        partName: "Fundamental Rights",
+        articles: [
+            { number: "12", title: "Article 12", explanation: "Definition of the State.", example: "The term 'State' includes the Government, Parliament of India, Government and Legislature of each State, and other authorities under the control of the Government of India." },
+            { number: "13", title: "Article 13", explanation: "Laws inconsistent with or in derogation of the fundamental rights.", example: "Any law made by Parliament or the States that is in violation of Fundamental Rights is declared void to the extent of the inconsistency." },
+            { number: "14", title: "Article 14", explanation: "Equality before law.", example: "All citizens, regardless of their status, are treated equally in the eyes of the law, like in cases where courts have struck down discriminatory laws." },
+            { number: "15", title: "Article 15", explanation: "Prohibition of discrimination on grounds of religion, race, caste, sex or place of birth.", example: "No person can be denied access to public places based on their religion or caste." },
+            { number: "16", title: "Article 16", explanation: "Equality of opportunity in matters of public employment.", example: "Reservation policies for backward classes were implemented to promote equality in public employment." },
+            { number: "17", title: "Article 17", explanation: "Abolition of Untouchability.", example: "Untouchability is prohibited, and the enforcement of any disability arising from it is an offense." },
+            { number: "18", title: "Article 18", explanation: "Abolition of titles.", example: "The Constitution abolishes the conferral of titles like 'Sir' or 'Raja' to prevent inequality." },
+            { number: "19", title: "Article 19", explanation: "Protection of certain rights regarding freedom of speech, etc.", example: "Citizens enjoy the right to freedom of speech, expression, assembly, and association, subject to reasonable restrictions." },
+            { number: "20", title: "Article 20", explanation: "Protection in respect of conviction for offenses.", example: "No person can be convicted for the same offense twice (protection against double jeopardy)." },
+            { number: "21", title: "Article 21", explanation: "Protection of life and personal liberty.", example: "The right to life includes the right to live with dignity, as interpreted by the courts." },
+            { number: "21A", title: "Article 21A", explanation: "Right to education.", example: "Free and compulsory education for children aged 6 to 14 years was introduced under this article." },
+            { number: "22", title: "Article 22", explanation: "Protection against arrest and detention in certain cases.", example: "People have the right to be informed of the grounds for arrest and to consult a legal practitioner." },
+            { number: "23", title: "Article 23", explanation: "Prohibition of traffic in human beings and forced labor.", example: "Bonded labor and human trafficking are strictly prohibited." },
+            { number: "24", title: "Article 24", explanation: "Prohibition of employment of children in factories, etc.", example: "Children below the age of 14 cannot be employed in hazardous industries like factories or mines." },
+            { number: "25", title: "Article 25", explanation: "Freedom of conscience and free profession, practice, and propagation of religion.", example: "Citizens are free to practice and propagate any religion of their choice." },
+            { number: "26", title: "Article 26", explanation: "Freedom to manage religious affairs.", example: "Religious denominations can manage their religious affairs without interference from the State." },
+            { number: "27", title: "Article 27", explanation: "Freedom as to payment of taxes for promotion of any particular religion.", example: "No person is obligated to pay taxes for the promotion or maintenance of any religion or religious institution." },
+            { number: "28", title: "Article 28", explanation: "Freedom as to attendance at religious instruction or religious worship in certain educational institutions.", example: "Religious instruction is prohibited in state-funded educational institutions." },
+            { number: "29", title: "Article 29", explanation: "Protection of interests of minorities.", example: "Minorities have the right to conserve their language, script, and culture." },
+            { number: "30", title: "Article 30", explanation: "Right of minorities to establish and administer educational institutions.", example: "Religious or linguistic minorities can establish and administer their own educational institutions." },
+            { number: "31", title: "Article 31", explanation: "Compulsory acquisition of property (now repealed).", example: "This article, before repeal, allowed the State to acquire private property for public purposes." }
+        ],
+        category: "Fundamental Rights"
+    },
+    {
+        partNumber: 4,
+        partName: "Directive Principles of State Policy",
+        articles: [
+            { number: "36", title: "Article 36", explanation: "Definition of the State.", example: "The definition of 'State' under this Part is the same as in Part III regarding Fundamental Rights." },
+            { number: "37", title: "Article 37", explanation: "Application of the principles contained in this Part.", example: "The Directive Principles, though non-justiciable, are fundamental in the governance of the country." },
+            { number: "38", title: "Article 38", explanation: "State to secure a social order for the promotion of the welfare of the people.", example: "The State shall strive to eliminate inequalities in income, status, and opportunities." },
+            { number: "39", title: "Article 39", explanation: "Certain principles of policy to be followed by the State.", example: "Equal pay for equal work for both men and women, and protection of children from exploitation, are key objectives." },
+            { number: "39A", title: "Article 39A", explanation: "Equal justice and free legal aid.", example: "Free legal aid services are provided to ensure equal access to justice for economically weaker sections of society." },
+            { number: "40", title: "Article 40", explanation: "Organisation of village panchayats.", example: "The State shall take steps to organize village panchayats as units of self-government." },
+            { number: "41", title: "Article 41", explanation: "Right to work, to education and to public assistance in certain cases.", example: "The Mahatma Gandhi National Rural Employment Guarantee Act (MGNREGA) was enacted to ensure the right to work in rural areas." },
+            { number: "42", title: "Article 42", explanation: "Provision for just and humane conditions of work and maternity relief.", example: "The Maternity Benefit Act provides maternity leave and ensures humane work conditions for women." },
+            { number: "43", title: "Article 43", explanation: "Living wage, etc., for workers.", example: "The State shall ensure a living wage for workers to provide a decent standard of life and full enjoyment of leisure and social and cultural opportunities." },
+            { number: "43A", title: "Article 43A", explanation: "Participation of workers in management of industries.", example: "Industrial relations legislation encourages worker participation in the management of industries." },
+            { number: "44", title: "Article 44", explanation: "Uniform civil code for the citizens.", example: "The State shall endeavor to secure a uniform civil code for all citizens, as a means of ensuring equality and unity." },
+            { number: "45", title: "Article 45", explanation: "Provision for early childhood care and education to children below the age of six years.", example: "The Integrated Child Development Services (ICDS) program provides early childhood care and education." },
+            { number: "46", title: "Article 46", explanation: "Promotion of educational and economic interests of Scheduled Castes, Scheduled Tribes and other weaker sections.", example: "Scholarships and reservations are provided for the educational and economic advancement of weaker sections." },
+            { number: "47", title: "Article 47", explanation: "Duty of the State to raise the level of nutrition and the standard of living and to improve public health.", example: "The State promotes nutrition and public health measures, such as the mid-day meal scheme in schools." },
+            { number: "48", title: "Article 48", explanation: "Organisation of agriculture and animal husbandry.", example: "The State shall endeavor to modernize agricultural techniques and promote animal husbandry on scientific lines." },
+            { number: "48A", title: "Article 48A", explanation: "Protection and improvement of environment and safeguarding of forests and wildlife.", example: "The government implements programs for afforestation and environmental conservation." },
+            { number: "49", title: "Article 49", explanation: "Protection of monuments and places and objects of national importance.", example: "Preservation and protection of historical monuments like the Taj Mahal are ensured by the State." },
+            { number: "50", title: "Article 50", explanation: "Separation of judiciary from executive.", example: "The judiciary operates independently of the executive branch to ensure impartiality in justice delivery." },
+            { number: "51", title: "Article 51", explanation: "Promotion of international peace and security.", example: "India participates in United Nations peacekeeping missions to promote international peace and cooperation." }
+        ],
+        category: "Directive Principles of State Policy"
+    },
+    {
+        partNumber: '4A',
+        partName: "Fundamental Duties",
+        articles: [
+            { number: "51A", title: "Article 51A", explanation: "Fundamental duties of every citizen of India.", example: "Citizens are expected to abide by the Constitution, respect its ideals, and promote harmony, as well as protect the environment, and safeguard public property." }
+        ],
+        category: "Fundamental Duties"
+    },
+    {
+        partNumber: 5,
+        partName: "The Union",
+        articles: [
+
+            { number: "52", title: "Article 52", explanation: "The President of India.", example: "The President is the ceremonial head of the country, representing the unity and integrity of the nation." },
+            { number: "53", title: "Article 53", explanation: "Executive power of the Union.", example: "The executive power is vested in the President, but it is exercised by the Prime Minister and Council of Ministers." },
+            { number: "54", title: "Article 54", explanation: "Election of the President.", example: "The President is elected by an electoral college consisting of elected members of both Houses of Parliament and State Legislative Assemblies." },
+            { number: "55", title: "Article 55", explanation: "Manner of election of President.", example: "The election process ensures uniformity in representation of different states and Union territories." },
+            { number: "56", title: "Article 56", explanation: "Term of office of President.", example: "The President's term is five years, but the President can be re-elected for additional terms." },
+            { number: "57", title: "Article 57", explanation: "Eligibility for re-election.", example: "There is no limit on the number of terms a person can serve as President." },
+            { number: "58", title: "Article 58", explanation: "Qualifications for election as President.", example: "A person must be a citizen of India, at least 35 years old, and qualified for election to the Lok Sabha." },
+            { number: "59", title: "Article 59", explanation: "Conditions of President's office.", example: "The President cannot hold any other office of profit and must reside in the Rashtrapati Bhavan during the term." },
+            { number: "60", title: "Article 60", explanation: "Oath or affirmation by the President.", example: "The President takes an oath to preserve, protect, and defend the Constitution and the law." },
+            { number: "61", title: "Article 61", explanation: "Procedure for impeachment of the President.", example: "The President can be impeached for violation of the Constitution, requiring a two-thirds majority in both Houses of Parliament." },
+            { number: "62", title: "Article 62", explanation: "Time of holding election to fill vacancy in the office of President and the term of office.", example: "An election to fill a vacancy in the office of the President must be held within six months." },
+            { number: "63", title: "Article 63", explanation: "The Vice-President of India.", example: "The Vice-President is the ex-officio Chairman of the Rajya Sabha and assumes the role of President in the event of a vacancy." },
+            { number: "64", title: "Article 64", explanation: "The Vice-President to be ex-officio Chairman of the Council of States.", example: "The Vice-President is responsible for presiding over the meetings of the Rajya Sabha." },
+            { number: "65", title: "Article 65", explanation: "The Vice-President to act as President or to discharge his functions during casual vacancies.", example: "The Vice-President serves as the Acting President if there is a vacancy in the office of the President." },
+            { number: "66", title: "Article 66", explanation: "Election of Vice-President.", example: "The Vice-President is elected by members of both Houses of Parliament through a system of proportional representation." },
+            { number: "67", title: "Article 67", explanation: "Term of office of Vice-President.", example: "The Vice-President holds office for a term of five years." },
+            { number: "68", title: "Article 68", explanation: "Time of holding election to fill vacancy in the office of Vice-President and the term of office.", example: "An election to fill a vacancy in the office of the Vice-President must be held before the expiry of the current term." },
+            { number: "69", title: "Article 69", explanation: "Oath or affirmation by the Vice-President.", example: "The Vice-President takes an oath to faithfully execute the duties of the office and preserve the Constitution." },
+            { number: "70", title: "Article 70", explanation: "Discharge of President's functions in other contingencies.", example: "If both the President and Vice-President positions are vacant, the Chief Justice of India may discharge the President’s functions." },
+            { number: "71", title: "Article 71", explanation: "Matters relating to, or connected with, the election of a President or Vice-President.", example: "Disputes regarding the election of the President or Vice-President are adjudicated by the Supreme Court." },
+            { number: "72", title: "Article 72", explanation: "Power of President to grant pardons, etc., and to suspend, remit or commute sentences in certain cases.", example: "The President has the power to grant clemency in cases of death sentences or offenses related to the Union." },
+            { number: "73", title: "Article 73", explanation: "Extent of executive power of the Union.", example: "The executive power of the Union extends to matters on which Parliament has authority to legislate." },
+            { number: "74", title: "Article 74", explanation: "Council of Ministers to aid and advise President.", example: "The President acts on the advice of the Prime Minister and the Council of Ministers." },
+            { number: "75", title: "Article 75", explanation: "Other provisions as to Ministers.", example: "The Prime Minister is appointed by the President, and the other Ministers are appointed on the advice of the Prime Minister." },
+            { number: "76", title: "Article 76", explanation: "Attorney-General for India.", example: "The Attorney-General is the chief legal advisor to the Government of India." },
+            { number: "77", title: "Article 77", explanation: "Conduct of business of the Government of India.", example: "The government business is conducted in the name of the President, though managed by the executive." },
+            { number: "78", title: "Article 78", explanation: "Duties of Prime Minister as respects the furnishing of information to the President, etc.", example: "The Prime Minister must keep the President informed about decisions of the Council of Ministers." },
+            { number: "79", title: "Article 79", explanation: "Constitution of Parliament.", example: "The Parliament of India consists of the President, the Rajya Sabha (Council of States), and the Lok Sabha (House of the People)." },
+            { number: "80", title: "Article 80", explanation: "Composition of the Council of States.", example: "The Rajya Sabha is composed of representatives of the States, Union territories, and nominated members." },
+            { number: "81", title: "Article 81", explanation: "Composition of the House of the People.", example: "The Lok Sabha consists of representatives directly elected by the people of India." },
+            { number: "82", title: "Article 82", explanation: "Readjustment of representation on the basis of the census.", example: "The allocation of seats in the Lok Sabha is adjusted based on the latest census figures." },
+            { number: "83", title: "Article 83", explanation: "Duration of Houses of Parliament.", example: "The Lok Sabha has a term of five years, but can be dissolved earlier; the Rajya Sabha is a continuing body." },
+            { number: "84", title: "Article 84", explanation: "Qualifications for membership of Parliament.", example: "A person must be an Indian citizen, at least 25 years old for the Lok Sabha, and 30 years old for the Rajya Sabha to be eligible for membership." },
+            { number: "85", title: "Article 85", explanation: "Sessions of Parliament, prorogation and dissolution.", example: "The President can prorogue Parliament and dissolve the Lok Sabha, while Parliament must meet at least twice a year." },
+            { number: "86", title: "Article 86", explanation: "Right of President to address and send messages to Parliament.", example: "The President can address Parliament and send messages regarding the state of the nation and other matters." },
+            { number: "87", title: "Article 87", explanation: "Special address by the President.", example: "The President can make special addresses to both Houses of Parliament on important matters of national interest." },
+            { number: "88", title: "Article 88", explanation: "Rights of the President to attend and speak in Parliament.", example: "The President can attend and address both Houses of Parliament but does not have the right to vote." },
+            { number: "89", title: "Article 89", explanation: "The Speaker and Deputy Speaker of the House of the People.", example: "The Lok Sabha elects a Speaker and a Deputy Speaker to manage its proceedings and maintain order." },
+            { number: "90", title: "Article 90", explanation: "The Chairman and Deputy Chairman of the Council of States.", example: "The Rajya Sabha elects a Chairman (Vice-President) and a Deputy Chairman to preside over its sessions." },
+            { number: "91", title: "Article 91", explanation: "Powers of the Speaker and Chairman.", example: "The Speaker of the Lok Sabha and the Chairman of the Rajya Sabha have the authority to maintain order and discipline in their respective Houses." },
+            { number: "92", title: "Article 92", explanation: "Salaries and allowances of the Speaker and Deputy Speaker.", example: "The Speaker and Deputy Speaker of the Lok Sabha receive salaries and allowances as determined by Parliament." },
+            { number: "93", title: "Article 93", explanation: "Salaries and allowances of the Chairman and Deputy Chairman.", example: "The Chairman and Deputy Chairman of the Rajya Sabha receive salaries and allowances as determined by Parliament." },
+            { number: "94", title: "Article 94", explanation: "Vacation of seats by Members of Parliament.", example: "A member of Parliament must vacate their seat if they become disqualified or resign." },
+            { number: "95", title: "Article 95", explanation: "Resignation of the Speaker or Deputy Speaker.", example: "The Speaker or Deputy Speaker may resign from their position by submitting a resignation letter to the President or the House." },
+            { number: "96", title: "Article 96", explanation: "Resignation of the Chairman or Deputy Chairman.", example: "The Chairman or Deputy Chairman of the Rajya Sabha may resign from their position by submitting a resignation letter to the President or the House." },
+            { number: "97", title: "Article 97", explanation: "Powers of the President in relation to Parliament.", example: "The President can summon and prorogue Parliament and dissolve the Lok Sabha." },
+            { number: "98", title: "Article 98", explanation: "Powers of the Rajya Sabha in relation to its members.", example: "The Rajya Sabha has the power to expel its members for misconduct." },
+            { number: "99", title: "Article 99", explanation: "Power to punish members of Parliament for disorderly conduct.", example: "Both Houses of Parliament can take disciplinary action against members for disorderly conduct." },
+            { number: "100", title: "Article 100", explanation: "Voting in Houses of Parliament.", example: "Members of Parliament vote on bills and resolutions, with the Speaker casting a vote in case of a tie in the Lok Sabha." },
+            { number: "101", title: "Article 101", explanation: "Vacation of seats by members of Parliament.", example: "A member's seat in Parliament becomes vacant if they are disqualified or if they fail to attend sessions without valid reasons." },
+            { number: "102", title: "Article 102", explanation: "Disqualification of members of Parliament.", example: "Members of Parliament can be disqualified for being convicted of certain offenses or for holding an office of profit." },
+            { number: "103", title: "Article 103", explanation: "Decision on disqualification of members of Parliament.", example: "The President decides on the disqualification of members of Parliament based on the advice of the Election Commission." },
+            { number: "104", title: "Article 104", explanation: "Powers of the Rajya Sabha in relation to disqualification.", example: "The Rajya Sabha has the power to adjudicate on matters of disqualification of its members." },
+            { number: "105", title: "Article 105", explanation: "Privileges of Parliament and its members.", example: "Members of Parliament enjoy certain privileges, including immunity from arrest during sessions and freedom of speech within Parliament." },
+            { number: "106", title: "Article 106", explanation: "Salaries and allowances of members of Parliament.", example: "Members of Parliament receive salaries and allowances as determined by Parliament." },
+            { number: "107", title: "Article 107", explanation: "Provisions as to the introduction of Bills and resolutions.", example: "Bills and resolutions can be introduced in either House of Parliament, subject to certain procedures." },
+            { number: "108", title: "Article 108", explanation: "Joint sittings of both Houses of Parliament.", example: "A joint sitting of Parliament is convened to resolve disagreements between the Lok Sabha and Rajya Sabha on a Bill." },
+            { number: "109", title: "Article 109", explanation: "Money Bills.", example: "Money Bills can only be introduced in the Lok Sabha and must be returned by the Rajya Sabha within 14 days." },
+            { number: "110", title: "Article 110", explanation: "Definition of Money Bills.", example: "Money Bills pertain to taxation, borrowing, and expenditure, and have special procedures for passage." },
+            { number: "111", title: "Article 111", explanation: "Assent to Bills.", example: "The President can give assent, withhold assent, or return a Bill with a request for reconsideration." },
+            { number: "112", title: "Article 112", explanation: "Annual financial statement.", example: "The government presents an annual financial statement (Budget) to Parliament detailing revenue and expenditure." },
+            { number: "113", title: "Article 113", explanation: "Appropriation Bills.", example: "Appropriation Bills authorize government expenditure from the Consolidated Fund of India." },
+            { number: "114", title: "Article 114", explanation: "Contingency Fund.", example: "The Contingency Fund is used for emergencies and is replenished by Parliament." },
+            { number: "115", title: "Article 115", explanation: "Supplementary and additional grants.", example: "Supplementary and additional grants are sought by the government if expenditure exceeds the original estimates." },
+            { number: "116", title: "Article 116", explanation: "Excess grants.", example: "Excess grants are required for expenditure exceeding the authorized limits." },
+            { number: "117", title: "Article 117", explanation: "Procedure for expenditure charged upon the Consolidated Fund of India.", example: "Certain expenditures, such as debt repayments and salaries of high officials, are charged on the Consolidated Fund and do not require a vote." },
+            { number: "118", title: "Article 118", explanation: "Rules of procedure.", example: "Each House of Parliament makes its own rules of procedure for conducting its business." },
+            { number: "119", title: "Article 119", explanation: "Regulation of procedure by the Speaker.", example: "The Speaker of the Lok Sabha regulates its procedures and maintains order during debates." },
+            { number: "120", title: "Article 120", explanation: "Language used in Parliament.", example: "The official languages used in Parliament are Hindi and English." },
+            { number: "121", title: "Article 121", explanation: "Restrictions on discussion in Parliament.", example: "Members of Parliament cannot discuss matters that are sub judice or violate the privileges of the House." },
+            { number: "122", title: "Article 122", explanation: "Validity of proceedings of Parliament.", example: "Proceedings of Parliament are valid even if there are procedural irregularities, as long as the proceedings are conducted in accordance with the Constitution." },
+            { number: "123", title: "Article 123", explanation: "Power of the President to dissolve the Lok Sabha.", example: "The President can dissolve the Lok Sabha and call for fresh elections upon the advice of the Prime Minister." },
+            { number: "124", title: "Article 124", explanation: "Establishment and composition of the Supreme Court.", example: "The Supreme Court of India is established to adjudicate disputes and uphold the Constitution." },
+            { number: "125", title: "Article 125", explanation: "Salaries and allowances of the Chief Justice and other Judges.", example: "The Chief Justice and other Judges of the Supreme Court are paid salaries and allowances determined by Parliament." },
+            { number: "126", title: "Article 126", explanation: "Acting Chief Justice.", example: "The President can appoint an Acting Chief Justice if the Chief Justice is unable to perform their duties." },
+            { number: "127", title: "Article 127", explanation: "Appointment of ad hoc judges.", example: "The President can appoint ad hoc judges to the Supreme Court if necessary." },
+            { number: "128", title: "Article 128", explanation: "Attendance of retired judges.", example: "Retired judges of the Supreme Court can be invited to attend and participate in cases if required." },
+            { number: "129", title: "Article 129", explanation: "Supreme Court to be a court of record.", example: "The Supreme Court is a court of record, meaning its judgments and orders are recorded and can be referred to in future cases." },
+            { number: "130", title: "Article 130", explanation: "Seat of the Supreme Court.", example: "The Supreme Court has its principal seat in Delhi, but can sit in other places as determined by the Chief Justice." },
+            { number: "131", title: "Article 131", explanation: "Original jurisdiction of the Supreme Court.", example: "The Supreme Court has original jurisdiction to resolve disputes between states and between the Union and states." },
+            { number: "132", title: "Article 132", explanation: "Appellate jurisdiction of the Supreme Court.", example: "The Supreme Court hears appeals on matters involving substantial questions of law." },
+            { number: "133", title: "Article 133", explanation: "Appeals to the Supreme Court in civil cases.", example: "Appeals in civil cases can be made to the Supreme Court if the case involves a significant question of law." },
+            { number: "134", title: "Article 134", explanation: "Appeals to the Supreme Court in criminal cases.", example: "Appeals in criminal cases can be made to the Supreme Court if the case involves a significant question of law." },
+            { number: "135", title: "Article 135", explanation: "Jurisdiction of the Supreme Court in respect of matters relating to other courts.", example: "The Supreme Court has jurisdiction to supervise and review the functioning of other courts in India." },
+            { number: "136", title: "Article 136", explanation: "Special leave to appeal by the Supreme Court.", example: "The Supreme Court can grant special leave to appeal in any case, irrespective of the nature of the case or its origins." },
+            { number: "137", title: "Article 137", explanation: "Review of judgments or orders by the Supreme Court.", example: "The Supreme Court has the power to review its own judgments or orders." },
+            { number: "138", title: "Article 138", explanation: "Powers of the Supreme Court in relation to advisory jurisdiction.", example: "The Supreme Court can give advisory opinions on matters of public importance referred to it by the President." },
+            { number: "139", title: "Article 139", explanation: "Power of the Supreme Court to transfer cases.", example: "The Supreme Court can transfer cases from one court to another to ensure fair and efficient justice." },
+            { number: "140", title: "Article 140", explanation: "Power of the Supreme Court to issue writs.", example: "The Supreme Court can issue writs to enforce fundamental rights and other legal rights." },
+            { number: "141", title: "Article 141", explanation: "Law declared by the Supreme Court to be binding.", example: "The law declared by the Supreme Court is binding on all courts and authorities in India." },
+            { number: "142", title: "Article 142", explanation: "Enforcement of decrees and orders of the Supreme Court.", example: "The Supreme Court can issue orders to ensure the enforcement of its decrees and judgments." },
+            { number: "143", title: "Article 143", explanation: "Advisory jurisdiction of the Supreme Court.", example: "The Supreme Court can advise the President on legal questions referred to it by the President." },
+            { number: "144", title: "Article 144", explanation: "Civil and judicial authorities to act in aid of the Supreme Court.", example: "All civil and judicial authorities must act in aid of the Supreme Court's orders and directions." },
+            { number: "145", title: "Article 145", explanation: "Rules of procedure of the Supreme Court.", example: "The Supreme Court makes its own rules of procedure for conducting its business." },
+            { number: "146", title: "Article 146", explanation: "Salaries and allowances of the Supreme Court staff.", example: "Salaries and allowances of the Supreme Court staff are determined by Parliament." },
+            { number: "147", title: "Article 147", explanation: "Interpretation of the Constitution by the Supreme Court.", example: "The Supreme Court has the authority to interpret the Constitution and resolve constitutional disputes." },
+            { number: "148", title: "Article 148", explanation: "Comptroller and Auditor-General of India.", example: "The Comptroller and Auditor-General audits the accounts of the Union and State governments." },
+            { number: "149", title: "Article 149", explanation: "Powers and duties of the Comptroller and Auditor-General.", example: "The Comptroller and Auditor-General has the authority to audit and report on government expenditure and accounts." },
+            { number: "150", title: "Article 150", explanation: "Form of accounts of the Union and States.", example: "The accounts of the Union and State governments are maintained in a form prescribed by the Comptroller and Auditor-General." },
+            { number: "151", title: "Article 151", explanation: "Audit reports of the Comptroller and Auditor-General.", example: "The Comptroller and Auditor-General submits audit reports to the President and the State Governors." }
+    
+        ],
+        category: "The Union"
+    },
+    {
+        partNumber: 6,
+        partName: "The States",
+        articles: [
+            { number: "152", title: "Article 152", explanation: "Definition of State.", example: "The term 'State' refers to all states and Union territories, except for Jammu and Kashmir (prior to its reorganization in 2019)." },
+            { number: "153", title: "Article 153", explanation: "Governors of States.", example: "Each state has a Governor appointed by the President of India, who serves as the head of the state." },
+            { number: "154", title: "Article 154", explanation: "Executive power of State.", example: "The executive power of the State is vested in the Governor, who exercises it either directly or through officers subordinate to him." },
+            { number: "155", title: "Article 155", explanation: "Appointment of Governor.", example: "The Governor of a state is appointed by the President for a term of five years." },
+            { number: "156", title: "Article 156", explanation: "Term of office of Governor.", example: "The Governor serves a term of five years but holds office at the pleasure of the President." },
+            { number: "157", title: "Article 157", explanation: "Qualifications for appointment as Governor.", example: "A Governor must be at least 35 years old and should not hold any office of profit." },
+            { number: "158", title: "Article 158", explanation: "Conditions of Governor's office.", example: "The Governor cannot hold any other office of profit or be a member of the Parliament or a State Legislature." },
+            { number: "159", title: "Article 159", explanation: "Oath or affirmation by the Governor.", example: "The Governor takes an oath to preserve, protect, and defend the Constitution and the law." },
+            { number: "160", title: "Article 160", explanation: "Discharge of the functions of the Governor in certain contingencies.", example: "The President may make provisions for the discharge of the functions of the Governor in case of a vacancy." },
+            { number: "161", title: "Article 161", explanation: "Power of Governor to grant pardons, etc., and to suspend, remit or commute sentences in certain cases.", example: "The Governor has the power to pardon, commute, or suspend sentences in cases relating to State laws." },
+            { number: "162", title: "Article 162", explanation: "Extent of executive power of State.", example: "The executive power of the State extends to matters on which the State Legislature has authority to legislate." },
+            { number: "163", title: "Article 163", explanation: "Council of Ministers to aid and advise Governor.", example: "The Governor acts on the advice of the Chief Minister and the Council of Ministers in state matters." },
+            { number: "164", title: "Article 164", explanation: "Other provisions as to Ministers.", example: "The Chief Minister is appointed by the Governor, and other Ministers are appointed on the advice of the Chief Minister." },
+            { number: "165", title: "Article 165", explanation: "Advocate-General for the State.", example: "The Advocate-General is the chief legal advisor to the State Government." },
+            { number: "166", title: "Article 166", explanation: "Conduct of business of the Government of a State.", example: "All executive actions of the government of a state are expressed in the name of the Governor." },
+            { number: "167", title: "Article 167", explanation: "Duties of Chief Minister as respects the furnishing of information to Governor, etc.", example: "The Chief Minister must keep the Governor informed about the decisions of the Council of Ministers." },
+            { number: "168", title: "Article 168", explanation: "Constitution of Legislatures in States.", example: "Every State Legislature consists of the Governor and, in some states, two Houses, while in others, one House." },
+            { number: "169", title: "Article 169", explanation: "Abolition or creation of Legislative Councils in States.", example: "The Parliament can abolish or create a Legislative Council in a state based on a resolution passed by the State Legislative Assembly." },
+            { number: "170", title: "Article 170", explanation: "Composition of the Legislative Assembly.", example: "The Legislative Assembly of a state consists of members elected directly by the people of the state." },
+            { number: "171", title: "Article 171", explanation: "Representation of the States in the Council of States.", example: "The representation of each state in the Rajya Sabha is determined by the population of the state." },
+            { number: "172", title: "Article 172", explanation: "Duration of Legislative Assemblies.", example: "The Legislative Assembly of a state is elected for a term of five years unless dissolved sooner." },
+            { number: "173", title: "Article 173", explanation: "Qualifications for membership of the Legislative Assembly.", example: "A candidate for the Legislative Assembly must be a citizen of India and at least 25 years old." },
+            { number: "174", title: "Article 174", explanation: "Sessions of the Legislature, prorogation and dissolution.", example: "The Governor can summon the Legislature, prorogue it, or dissolve the Legislative Assembly." },
+            { number: "175", title: "Article 175", explanation: "Right of Governor to address and send messages to the House or Houses.", example: "The Governor can address the Legislature and send messages regarding bills or matters of state." },
+            { number: "176", title: "Article 176", explanation: "Special address by the Governor.", example: "At the beginning of the first session after each general election, the Governor addresses the Legislature." },
+            { number: "177", title: "Article 177", explanation: "Special responsibilities of the Council of Ministers to the Governor.", example: "The Council of Ministers is responsible to the Governor for the administration of the state." },
+            { number: "178", title: "Article 178", explanation: "Election of Speaker and Deputy Speaker of the Legislative Assembly.", example: "The members of the Legislative Assembly elect the Speaker and the Deputy Speaker from among themselves." },
+            { number: "179", title: "Article 179", explanation: "Vacation and resignation of seats.", example: "If a member of the Legislative Assembly resigns or their seat becomes vacant, a by-election is held." },
+            { number: "180", title: "Article 180", explanation: "Powers of the Speaker and Deputy Speaker.", example: "The Speaker of the Legislative Assembly has the power to maintain order and discipline within the House." },
+            { number: "181", title: "Article 181", explanation: "Powers of the Speaker in relation to the Legislature.", example: "The Speaker has the authority to decide on matters of procedure and maintain order during debates." },
+            { number: "182", title: "Article 182", explanation: "Duties of the Speaker and Deputy Speaker.", example: "The Speaker and Deputy Speaker are responsible for presiding over sessions of the Legislative Assembly." },
+            { number: "183", title: "Article 183", explanation: "Salaries and allowances of the Speaker and Deputy Speaker.", example: "The Speaker and Deputy Speaker receive salaries and allowances as determined by the State Legislature." },
+            { number: "184", title: "Article 184", explanation: "Legislative procedures.", example: "The Legislative Assembly follows specific procedures for introducing and passing bills." },
+            { number: "185", title: "Article 185", explanation: "Duties of the Assembly.", example: "The Legislative Assembly must pass laws on subjects within its jurisdiction and manage state finances." },
+            { number: "186", title: "Article 186", explanation: "Powers and functions of the Legislative Assembly.", example: "The Legislative Assembly has the power to legislate on matters listed in the State List and Concurrent List." },
+            { number: "187", title: "Article 187", explanation: "Powers of the Legislative Council.", example: "The Legislative Council, if present, acts as a revising chamber and reviews bills passed by the Legislative Assembly." },
+            { number: "188", title: "Article 188", explanation: "Privileges of the Legislative Assembly.", example: "Members of the Legislative Assembly have certain privileges like immunity from legal proceedings for statements made in the House." },
+            { number: "189", title: "Article 189", explanation: "Salaries and allowances of Members of the Legislative Assembly.", example: "Members of the Legislative Assembly receive salaries and allowances as prescribed by the State Legislature." },
+            { number: "190", title: "Article 190", explanation: "Vacancy of seats in the Legislative Assembly.", example: "If a seat in the Legislative Assembly becomes vacant, a by-election is held to fill the vacancy." },
+            { number: "191", title: "Article 191", explanation: "Disqualifications for membership of the Legislative Assembly.", example: "A person may be disqualified from membership if they hold an office of profit or are convicted of certain offenses." },
+            { number: "192", title: "Article 192", explanation: "Decision on questions of disqualification.", example: "The Governor decides on questions of disqualification of members based on the advice of the Election Commission." },
+            { number: "193", title: "Article 193", explanation: "Power of the Legislative Assembly to make laws.", example: "The Legislative Assembly has the authority to enact laws on matters within its legislative competence." },
+            { number: "194", title: "Article 194", explanation: "Powers of the Legislative Assembly to make laws on certain matters.", example: "The Legislative Assembly can make laws on subjects enumerated in the State List of the Constitution." },
+            { number: "195", title: "Article 195", explanation: "Powers of the State Legislature.", example: "The State Legislature has the power to legislate on matters included in the State List and Concurrent List." },
+            { number: "196", title: "Article 196", explanation: "Provisions for the State Legislature.", example: "The State Legislature's powers and functions are detailed in the Constitution and state laws." },
+            { number: "197", title: "Article 197", explanation: "Provisions related to bills and legislation.", example: "Bills must be passed by both Houses of the State Legislature before becoming law." },
+            { number: "198", title: "Article 198", explanation: "State's power to levy and collect taxes.", example: "States have the power to levy and collect taxes on subjects listed in the State List." },
+            { number: "199", title: "Article 199", explanation: "Audit of State's finances.", example: "The Comptroller and Auditor General of India audits the financial statements of the State Government." },
+            { number: "200", title: "Article 200", explanation: "Governor's assent to bills.", example: "The Governor can give assent, withhold assent, or return a bill for reconsideration by the Legislature." },
+            { number: "201", title: "Article 201", explanation: "Power to dissolve the Legislative Assembly.", example: "The Governor has the power to dissolve the Legislative Assembly on the advice of the Chief Minister." },
+            { number: "202", title: "Article 202", explanation: "State budget and appropriations.", example: "The State Government prepares and presents a budget to the Legislature for approval and appropriations." },
+            { number: "203", title: "Article 203", explanation: "Presentation of the State Budget.", example: "The State Budget is presented to the Legislative Assembly by the Finance Minister." },
+            { number: "204", title: "Article 204", explanation: "Financial powers of the State Legislature.", example: "The State Legislature has the power to approve or reject state expenditures and tax proposals." },
+            { number: "205", title: "Article 205", explanation: "Audit of State accounts.", example: "The State Government's financial transactions are audited by the Comptroller and Auditor General of India." },
+            { number: "206", title: "Article 206", explanation: "Powers of the State Legislature regarding revenue.", example: "The State Legislature can make laws relating to the management and collection of state revenue." },
+            { number: "207", title: "Article 207", explanation: "Expenditure charged on the Consolidated Fund of the State.", example: "Certain expenditures, such as salaries of the Governor and debts, are charged on the Consolidated Fund of the State." },
+            { number: "208", title: "Article 208", explanation: "State’s power to make laws relating to taxation.", example: "States can levy and collect taxes on goods and services within their jurisdiction." },
+            { number: "209", title: "Article 209", explanation: "State Legislature's powers to enact laws on taxation.", example: "The State Legislature can enact laws imposing taxes on subjects listed in the State List." },
+            { number: "210", title: "Article 210", explanation: "State Legislature's power to control the State's finances.", example: "The State Legislature exercises control over state finances through the budget and appropriations process." },
+            { number: "211", title: "Article 211", explanation: "State finances and audit.", example: "State finances are subject to audit by the Comptroller and Auditor General of India." },
+            { number: "212", title: "Article 212", explanation: "Powers of the State Legislature in relation to its proceedings.", example: "The State Legislature has the authority to regulate its own proceedings and maintain order within the House." }
+        ],
+        category: "The States"
+    },
+    {
+    partNumber: 7,
+    partName: "The States in Part B of the First Schedule",
+    articles: [
+        { number: "238", title: "Article 238", explanation: "Repealed by the Constitution (Seventh Amendment) Act, 1956." }
+    ],
+    category: "General Provisions"
+},
+{
+    partNumber: 8,
+    partName: "The Union Territories",
+    articles: [
+        { number: "239", title: "Article 239", explanation: "Administration of Union territories." },
+        { number: "239A", title: "Article 239A", explanation: "Creation of local Legislatures or Council of Ministers or both for certain Union territories." },
+        { number: "240", title: "Article 240", explanation: "Administration of Union territories with a Legislative Assembly.", example: "Union territories with a Legislative Assembly, such as Delhi, have their own elected governments for local governance." },
+        { number: "241", title: "Article 241", explanation: "High Court for Union territories.", example: "Union territories may have a High Court if provided by the Parliament, or they may be under the jurisdiction of a High Court of a neighboring state." }
+    ],
+    category: "Executive, Legislature"
+},
+{
+    partNumber: 9,
+    partName: "Panchayats",
+    articles: [
+        { number: "243", title: "Article 243", explanation: "Definitions relating to Panchayats.", example: "Article 243 defines terms such as 'Panchayat', 'Gram Sabha', and 'State Election Commission' in relation to local self-government institutions." },
+        { number: "243A", title: "Article 243A", explanation: "Gram Sabha.", example: "The Gram Sabha is a body consisting of all the adult members of a village, responsible for the planning and implementation of development programs at the village level." },
+        { number: "243B", title: "Article 243B", explanation: "Constitution of Panchayats.", example: "Panchayats are to be constituted at various levels—village, intermediate, and district—according to the provisions of the Constitution and State laws." },
+        { number: "243C", title: "Article 243C", explanation: "Composition of Panchayats.", example: "Panchayats at different levels are composed of members elected directly by the people, as well as nominated members as prescribed by law." },
+        { number: "243D", title: "Article 243D", explanation: "Reservation of seats.", example: "Seats in Panchayats are reserved for Scheduled Castes, Scheduled Tribes, and women, including a certain percentage for women belonging to SCs and STs." },
+        { number: "243E", title: "Article 243E", explanation: "Duration of Panchayats.", example: "Panchayats are elected for a term of five years, but they can be dissolved earlier or extended by the State Government under specific conditions." },
+        { number: "243F", title: "Article 243F", explanation: "Eligibility for membership and disqualification.", example: "To be eligible for membership of a Panchayat, a person must be a citizen of India and meet age and residence criteria, while disqualifications include holding office of profit or being convicted of certain offenses." },
+        { number: "243G", title: "Article 243G", explanation: "Powers, authority, and responsibilities of Panchayats.", example: "Panchayats have the power to implement and manage various functions, services, and development projects at the local level as delegated by the State Government." },
+        { number: "243H", title: "Article 243H", explanation: "Powers to levy taxes and fees.", example: "Panchayats have the authority to levy and collect taxes, duties, and fees as prescribed by law to fund their activities and functions." },
+        { number: "243I", title: "Article 243I", explanation: "State Finance Commission.", example: "The State Finance Commission is constituted to review and make recommendations on the distribution of financial resources between the State Government and Panchayats." },
+        { number: "243J", title: "Article 243J", explanation: "Audit of Panchayat accounts.", example: "The accounts of Panchayats are audited by the Comptroller and Auditor General of India or any other authority designated by the State Government." },
+        { number: "243K", title: "Article 243K", explanation: "Elections to the Panchayats.", example: "Elections to the Panchayats are conducted by the State Election Commission to ensure free and fair electoral processes." },
+        { number: "243L", title: "Article 243L", explanation: "Powers of the State Legislature to make laws regarding Panchayats.", example: "The State Legislature has the authority to make laws concerning the structure, powers, and functions of Panchayats." },
+        { number: "243M", title: "Article 243M", explanation: "Powers of the State Legislature to make laws regarding Panchayats.", example: "State Legislatures have the power to make laws regarding the organization and functioning of Panchayats within their jurisdiction." },
+        { number: "243N", title: "Article 243N", explanation: "Continuance of existing Panchayats.", example: "Existing Panchayats continue to function until they are reconstituted under the new provisions of the Constitution." },
+        { number: "243O", title: "Article 243O", explanation: "Bar to interference by courts.", example: "No court can interfere with the validity of any election to the Panchayats, except on grounds provided by law." }
+
+    ],
+    category: "Local Governance"
+},
+{
+    partNumber: '9A',
+    partName: "Municipalities",
+    articles: [
+        { number: "243P", title: "Article 243P", explanation: "Definitions relating to Municipalities.", example: "Article 243P provides definitions for terms related to Municipalities, such as 'Municipality', 'City', and 'Urban Area'." },
+        { number: "243Q", title: "Article 243Q", explanation: "Constitution of Municipalities.", example: "Municipalities are to be constituted in every urban area, with provisions made for their structure and governance through state laws." },
+        { number: "243R", title: "Article 243R", explanation: "Composition of Municipalities.", example: "Municipalities are composed of elected members representing various wards, as well as a Mayor or Chairperson who is elected or appointed as per state law." },
+        { number: "243S", title: "Article 243S", explanation: "Constitution and composition of Wards Committees.", example: "Wards Committees are created to facilitate decentralized decision-making at the municipal level, with their composition and functions defined by state legislation." },
+        { number: "243T", title: "Article 243T", explanation: "Powers, authority, and responsibilities of Municipalities.", example: "Municipalities are granted powers and responsibilities for urban planning, infrastructure development, and public services, as defined by state laws." },
+        { number: "243U", title: "Article 243U", explanation: "Reservation of seats in Municipalities.", example: "Seats in Municipalities are reserved for Scheduled Castes, Scheduled Tribes, and women, including a certain percentage for women belonging to SCs and STs." },
+        { number: "243V", title: "Article 243V", explanation: "Duration of Municipalities.", example: "Municipalities are elected for a term of five years, but they can be dissolved earlier or extended by the State Government under specific conditions." },
+        { number: "243W", title: "Article 243W", explanation: "Powers to levy taxes and fees.", example: "Municipalities have the authority to levy and collect taxes, duties, and fees to fund their activities and services, as prescribed by state laws." },
+        { number: "243X", title: "Article 243X", explanation: "State Finance Commission.", example: "The State Finance Commission reviews and recommends the distribution of financial resources between the State Government and Municipalities." },
+        { number: "243Y", title: "Article 243Y", explanation: "Audit of Municipal accounts.", example: "The accounts of Municipalities are audited by the Comptroller and Auditor General of India or other designated authority to ensure transparency and accountability." },
+        { number: "243Z", title: "Article 243Z", explanation: "Elections to the Municipalities.", example: "Elections to the Municipalities are conducted by the State Election Commission to ensure free and fair electoral processes." },
+        { number: "243ZA", title: "Article 243ZA", explanation: "Powers of the State Legislature to make laws regarding Municipalities.", example: "The State Legislature has the authority to make laws concerning the structure, powers, and functions of Municipalities within their jurisdiction." },
+        { number: "243ZB", title: "Article 243ZB", explanation: "Continuance of existing Municipalities.", example: "Existing Municipalities continue to function until they are reconstituted under the new provisions of the Constitution." },
+        { number: "243ZC", title: "Article 243ZC", explanation: "Bar to interference by courts.", example: "No court can interfere with the validity of any election to the Municipalities, except on grounds provided by law." },
+        { number: "243ZD", title: "Article 243ZD", explanation: "Powers to make laws on Municipalities.", example: "State Legislatures have the power to legislate on matters related to the organization and functioning of Municipalities." },
+        { number: "243ZE", title: "Article 243ZE", explanation: "Powers and responsibilities of Municipalities.", example: "Municipalities are vested with powers and responsibilities to manage urban areas, including infrastructure, sanitation, and public health." },
+        { number: "243ZF", title: "Article 243ZF", explanation: "Municipalities’ role in urban planning.", example: "Municipalities play a key role in urban planning and development, including land use, housing, and environmental management." },
+        { number: "243ZG", title: "Article 243ZG", explanation: "State’s responsibilities regarding Municipalities.", example: "States are responsible for ensuring that Municipalities function effectively and receive adequate support and resources to carry out their duties." }
+
+    ],
+    category: "Local Governance"
+},
+{
+    partNumber: '9B',
+    partName: "Co-operative Societies",
+    articles: [
+        { number: "243ZH", title: "Article 243ZH", explanation: "Definitions relating to Co-operative Societies.", example: "Article 243ZH defines terms related to Co-operative Societies, such as 'Co-operative Society' and 'Member'." },
+        { number: "243ZI", title: "Article 243ZI", explanation: "Incorporation of Co-operative Societies.", example: "Co-operative Societies are to be incorporated and regulated under state laws, which provide for their registration and operational framework." },
+        { number: "243ZJ", title: "Article 243ZJ", explanation: "Number and term of members of Board and its office bearers.", example: "The number and term of members of the Board of a Co-operative Society, as well as its office bearers, are determined by the rules and regulations set by the State Government." },
+        { number: "243ZK", title: "Article 243ZK", explanation: "Elections of the Board and office bearers.", example: "The election process for the Board and office bearers of Co-operative Societies is governed by state laws to ensure democratic functioning." },
+        { number: "243ZL", title: "Article 243ZL", explanation: "Powers and functions of the Board and office bearers.", example: "The Board and office bearers of a Co-operative Society have defined powers and functions, including management of the society's affairs and execution of policies." },
+        { number: "243ZM", title: "Article 243ZM", explanation: "Audit of Co-operative Societies.", example: "Co-operative Societies are required to have their accounts audited regularly by a designated authority to ensure financial transparency and accountability." },
+        { number: "243ZN", title: "Article 243ZN", explanation: "State control over Co-operative Societies.", example: "The State Government has the authority to oversee and regulate the functioning of Co-operative Societies, ensuring they comply with legal and operational standards." },
+        { number: "243ZO", title: "Article 243ZO", explanation: "Dissolution of Co-operative Societies.", example: "The process and conditions for the dissolution of a Co-operative Society are specified by state laws, including settlement of liabilities and distribution of assets." },
+        { number: "243ZP", title: "Article 243ZP", explanation: "Special provisions for certain Co-operative Societies.", example: "Special provisions may be made for specific types of Co-operative Societies, such as agricultural or credit societies, to address their unique needs and functions." },
+        { number: "243ZQ", title: "Article 243ZQ", explanation: "State’s responsibility towards Co-operative Societies.", example: "The State Government is responsible for promoting and supporting Co-operative Societies by providing necessary legal and institutional frameworks." },
+        { number: "243ZR", title: "Article 243ZR", explanation: "Powers of the State Legislature to make laws regarding Co-operative Societies.", example: "The State Legislature has the power to make laws relating to the formation, regulation, and functioning of Co-operative Societies within its jurisdiction." },
+        { number: "243ZS", title: "Article 243ZS", explanation: "Review of the functioning of Co-operative Societies.", example: "The State Government may conduct periodic reviews of Co-operative Societies to ensure they are functioning effectively and in accordance with legal requirements." },
+        { number: "243ZT", title: "Article 243ZT", explanation: "Bar to interference by courts in the management of Co-operative Societies.", example: "Courts are restricted from intervening in the internal management of Co-operative Societies, except as provided by law." }
+
+    ],
+    category: "Co-operative Societies"
+},
+{
+    partNumber: 10,
+    partName: "The Scheduled and Tribal Areas",
+    articles: [
+        { number: "244", title: "Article 244", explanation: "Administration of Scheduled Areas and Tribal Areas." },
+        { number: "244A", title: "Article 244A", explanation: "Formation of an autonomous State comprising certain tribal areas in Assam and creation of local Legislature or Council of Ministers or both therefor." }
+    ],
+    category: "Scheduled and Tribal Areas"
+},
+{
+    partNumber: 11,
+    partName: "Relations Between the Union and the States",
+    articles: [
+        { number: "245", title: "Article 245", explanation: "Extent of laws made by Parliament and by the Legislatures of States.", example: "Article 245 defines the territorial extent of laws made by Parliament and State Legislatures, specifying that laws are applicable within their respective jurisdictions." },
+        { number: "246", title: "Article 246", explanation: "Subject-matter of laws made by Parliament and by the Legislatures of States.", example: "Article 246 outlines the distribution of powers and responsibilities between Parliament and State Legislatures, including the Union List, State List, and Concurrent List." },
+        { number: "247", title: "Article 247", explanation: "Power of Parliament to provide for the establishment of certain additional courts.", example: "Parliament has the power to establish additional courts for matters not covered by existing courts, as required by the needs of justice and administrative convenience." },
+        { number: "248", title: "Article 248", explanation: "Residuary powers.", example: "Article 248 grants Parliament the power to legislate on matters not enumerated in the State List, known as residuary powers, which are included in the Union List." },
+        { number: "249", title: "Article 249", explanation: "Power of Parliament to legislate on a matter in the State List in the national interest.", example: "Article 249 allows Parliament to legislate on State List matters if the Rajya Sabha passes a resolution stating that it is in the national interest." },
+        { number: "250", title: "Article 250", explanation: "Power of Parliament to legislate for a State on a matter in the State List during a national emergency.", example: "During a national emergency, Parliament can make laws on State List matters if it is necessary for the security of the country or its integrity." },
+        { number: "251", title: "Article 251", explanation: "Inconsistency between Central and State laws.", example: "Article 251 provides that if a State law is inconsistent with a Central law on a Concurrent List matter, the Central law prevails." },
+        { number: "252", title: "Article 252", explanation: "Power of Parliament to legislate for two or more States by consent.", example: "Parliament can enact laws for two or more States if those States agree to it, even if the matter is on the State List." },
+        { number: "253", title: "Article 253", explanation: "Power of Parliament to legislate for giving effect to international agreements.", example: "Parliament can make laws to implement international agreements or treaties to which India is a party, regardless of whether the matter is in the State List." },
+        { number: "254", title: "Article 254", explanation: "Inconsistency between Central and State laws on Concurrent List matters.", example: "If a State law on a Concurrent List matter is inconsistent with a Central law, the Central law prevails unless the State law has received Presidential assent." },
+        { number: "255", title: "Article 255", explanation: "Requirement of Presidential assent for State laws inconsistent with Central laws.", example: "State laws that are inconsistent with Central laws on Concurrent List matters require Presidential assent to be valid and enforceable." },
+        { number: "256", title: "Article 256", explanation: "Obligation of States to comply with laws made by Parliament.", example: "Article 256 mandates that States must comply with and enforce laws made by Parliament, ensuring uniformity in law across the country." },
+        { number: "257", title: "Article 257", explanation: "Control of the Union over the States in certain cases.", example: "Article 257 allows the Union Government to direct States on matters concerning the maintenance of harmony and the implementation of Union policies." },
+        { number: "258", title: "Article 258", explanation: "Power of the Union to confer powers on States.", example: "Article 258 allows the Union Government to delegate certain powers and functions to States if necessary for effective governance." },
+        { number: "259", title: "Article 259", explanation: "Power of the Union to direct States to implement laws.", example: "Article 259 authorizes the Union Government to direct States to implement specific laws or policies on its behalf." },
+        { number: "260", title: "Article 260", explanation: "Power of the Union to grant authority to the States for certain purposes.", example: "Article 260 enables the Union Government to grant authority to States for implementing laws or policies related to the management of certain resources." },
+        { number: "261", title: "Article 261", explanation: "Public acts, records, and judicial proceedings of one State to be recognized in every State.", example: "Article 261 ensures that public acts, records, and judicial proceedings of one State are recognized and enforced in all other States." },
+        { number: "262", title: "Article 262", explanation: "Adjudication of disputes relating to waters.", example: "Article 262 provides for the adjudication of disputes between States concerning the use and distribution of water resources." },
+        { number: "263", title: "Article 263", explanation: "Provision for the adjudication of disputes between States and the Union.", example: "Article 263 empowers the President to establish a Council of States to resolve disputes between States or between States and the Union Government." }
+
+    ],
+    category: "Legislature"
+},
+{
+    partNumber: 12,
+    partName: "Finance, Property, Contracts and Suits",
+    articles: [
+        { number: "264", title: "Article 264", explanation: "Interpretation.", example: "Article 264 provides the guidelines for interpreting provisions related to taxation and financial matters within the Constitution." },
+        { number: "265", title: "Article 265", explanation: "Taxes not to be imposed save by authority of law.", example: "Article 265 ensures that no tax can be levied or collected by the government except under authority of law." },
+        { number: "266", title: "Article 266", explanation: "Consolidated Funds and public accounts of India and of the States.", example: "Article 266 establishes the Consolidated Funds of India and the States, which are the primary sources of government revenue, and the Public Accounts for managing other funds." },
+        { number: "267", title: "Article 267", explanation: "Contingency Fund.", example: "Article 267 provides for the establishment of a Contingency Fund to meet unforeseen expenditures that arise between budget sessions." },
+        { number: "268", title: "Article 268", explanation: "Duties levied by the Union but collected and retained by the States.", example: "Article 268 specifies duties that are imposed by the Union but collected and retained by the States, such as stamp duties on certain documents." },
+        { number: "269", title: "Article 269", explanation: "Taxes levied and collected by the Union but assigned to the States.", example: "Article 269 deals with taxes levied by the Union, such as the tax on the sale of goods, that are collected by the Union but assigned to the States." },
+        { number: "270", title: "Article 270", explanation: "Taxes levied and collected by the Union and distributed between the Union and the States.", example: "Article 270 outlines the distribution of taxes levied and collected by the Union between the Union and the States, including the income tax on corporations." },
+        { number: "271", title: "Article 271", explanation: "Surcharge on certain taxes and duties.", example: "Article 271 allows for the imposition of a surcharge on certain taxes and duties for the purpose of increasing the revenue of the Union." },
+        { number: "272", title: "Article 272", explanation: "Taxes on transactions in goods and services.", example: "Article 272 deals with taxes on transactions in goods and services that are imposed by the Union and are assigned to the States." },
+        { number: "273", title: "Article 273", explanation: "Grants-in-aid to States.", example: "Article 273 provides for the distribution of grants-in-aid to States from the Union Consolidated Fund to address fiscal imbalances." },
+        { number: "274", title: "Article 274", explanation: "Grants-in-aid to States under Article 273.", example: "Article 274 outlines the conditions and procedures for providing grants-in-aid to States to support their financial needs." },
+        { number: "275", title: "Article 275", explanation: "Grants for financial assistance to certain States.", example: "Article 275 authorizes the Union Government to provide additional financial assistance to States that require support due to special circumstances." },
+        { number: "276", title: "Article 276", explanation: "Taxes on professions, trades, callings, and employments.", example: "Article 276 allows for the imposition of taxes on professions, trades, callings, and employments by the States, subject to certain limits." },
+        { number: "277", title: "Article 277", explanation: "Expenses of the Union in the States.", example: "Article 277 provides for the reimbursement of expenses incurred by the Union Government in connection with the administration of State matters." },
+        { number: "278", title: "Article 278", explanation: "Apportionment of taxes and duties.", example: "Article 278 deals with the apportionment of taxes and duties between the Union and the States, ensuring a fair distribution of revenue." },
+        { number: "279", title: "Article 279", explanation: "Computation of net proceeds of taxes.", example: "Article 279 outlines the methods for computing the net proceeds of taxes and duties, which are shared between the Union and the States." },
+        { number: "280", title: "Article 280", explanation: "Finance Commission.", example: "Article 280 provides for the establishment of the Finance Commission to review and recommend the distribution of financial resources between the Union and the States." },
+        { number: "281", title: "Article 281", explanation: "Reports of the Finance Commission.", example: "Article 281 requires the Finance Commission to submit its reports and recommendations to the President, who then lays them before Parliament and the State Legislatures." },
+        { number: "282", title: "Article 282", explanation: "Power to make grants for projects.", example: "Article 282 authorizes the Union Government to make grants to States for specific projects or purposes that benefit the public." },
+        { number: "283", title: "Article 283", explanation: "Custody, etc., of Consolidated Funds, etc.", example: "Article 283 deals with the custody and management of the Consolidated Funds, Public Accounts, and Contingency Funds by the government authorities." },
+        { number: "284", title: "Article 284", explanation: "Accounts of the Union and of the States.", example: "Article 284 mandates the maintenance of proper accounts by the Union and State Governments, and the auditing of these accounts." },
+        { number: "285", title: "Article 285", explanation: "Exemption of property of the Union from State taxation.", example: "Article 285 exempts Union property from State taxation, ensuring that assets owned by the Union Government are not subject to state taxes." },
+        { number: "286", title: "Article 286", explanation: "Restrictions on the imposition of taxes on the sale or purchase of goods.", example: "Article 286 imposes restrictions on State taxation of the sale or purchase of goods in the course of inter-State or international trade." },
+        { number: "287", title: "Article 287", explanation: "Exemption of certain goods and transactions from State taxation.", example: "Article 287 provides exemptions for certain goods and transactions from State taxes, particularly those that are crucial for interstate commerce." },
+        { number: "288", title: "Article 288", explanation: "Exemption of State property from Union taxation.", example: "Article 288 ensures that State property is exempt from taxation by the Union Government, preserving the financial autonomy of the States." },
+        { number: "289", title: "Article 289", explanation: "Property of the States and Union to be exempt from tax.", example: "Article 289 provides for mutual exemption of State and Union property from each other’s taxes to avoid financial conflicts." },
+        { number: "290", title: "Article 290", explanation: "Adjustment of certain expenses between the Union and the States.", example: "Article 290 deals with the adjustment of certain expenses incurred by the Union or State Governments, ensuring fair distribution of financial responsibilities." },
+        { number: "291", title: "Article 291", explanation: "Disposal of the balance of the revenue of the Indian States.", example: "Article 291 addresses the disposal of balances in the revenue accounts of former princely States, ensuring proper management and allocation." },
+        { number: "292", title: "Article 292", explanation: "Borrowing by the Union.", example: "Article 292 authorizes the Union Government to borrow money for its purposes, subject to certain conditions and limitations." },
+        { number: "293", title: "Article 293", explanation: "Borrowing by the States.", example: "Article 293 allows States to borrow money for their needs, subject to the approval of the Union Government and the terms of the borrowing." },
+        { number: "294", title: "Article 294", explanation: "Property and assets of the Union and the States.", example: "Article 294 outlines the distribution and management of property and assets between the Union and the States." },
+        { number: "295", title: "Article 295", explanation: "Division of property and assets between the Union and the States.", example: "Article 295 specifies the process for the division of property and assets between the Union and States, particularly following the reorganization of States." },
+        { number: "296", title: "Article 296", explanation: "Division of liabilities between the Union and the States.", example: "Article 296 addresses the allocation of liabilities between the Union and States, ensuring equitable sharing of financial responsibilities." },
+        { number: "297", title: "Article 297", explanation: "Rights of the Union to certain property.", example: "Article 297 provides the Union Government with rights to certain properties, such as mineral resources and natural wealth." },
+        { number: "298", title: "Article 298", explanation: "Power to acquire, hold, and dispose of property.", example: "Article 298 grants the Union and State Governments the power to acquire, hold, and dispose of property for public purposes." },
+        { number: "299", title: "Article 299", explanation: "Contracts for the Union and States.", example: "Article 299 specifies that contracts made by the Union and State Governments must be in writing and executed on their behalf." },
+        { number: "300", title: "Article 300", explanation: "Suits and proceedings by and against the Government.", example: "Article 300 allows for legal suits and proceedings to be initiated by or against the Union and State Governments in their official capacity." },
+        { number: "300A", title: "Article 300A", explanation: "Right to property.", example: "Article 300A states that no person can be deprived of their property except by the authority of law, ensuring protection against unlawful deprivation of property." }
+
+    ],
+    category: "Finance and Property"
+},
+{
+    partNumber: 13,
+    partName: "Trade, Commerce and Intercourse within the Territory of India",
+    articles: [
+        { number: "301", title: "Article 301", explanation: "Freedom of trade, commerce and intercourse.", example: "Article 301 guarantees the freedom of trade, commerce, and intercourse throughout the territory of India, ensuring a unified national market." },
+        { number: "302", title: "Article 302", explanation: "Power of Parliament to impose restrictions on trade, commerce and intercourse.", example: "Article 302 empowers Parliament to impose restrictions on trade, commerce, and intercourse in the public interest or to regulate them for national purposes." },
+        { number: "303", title: "Article 303", explanation: "Restrictions on the legislative powers of the Union and of the States with regard to trade and commerce.", example: "Article 303 imposes restrictions on the legislative powers of the Union and States to prevent discriminatory trade practices or regulations affecting inter-State trade and commerce." },
+        { number: "304", title: "Article 304", explanation: "Restrictions on trade, commerce and intercourse among States.", example: "Article 304 allows States to impose restrictions on trade, commerce, and intercourse to protect public health, morals, or the interests of the State, provided such restrictions do not discriminate against other States." },
+        { number: "305", title: "Article 305", explanation: "Saving of existing laws relating to trade and commerce.", example: "Article 305 protects existing State laws related to trade and commerce from being invalidated by the provisions of Articles 301 to 304." },
+        { number: "306", title: "Article 306", explanation: "Provision for the establishment of a common market.", example: "Article 306 was repealed by the 7th Amendment Act of 1956, which aimed to establish a common market throughout India, promoting economic integration." },
+        { number: "307", title: "Article 307", explanation: "Appointment of a Director for the implementation of the provisions related to trade and commerce.", example: "Article 307 provides for the appointment of a Director to oversee the implementation and administration of provisions related to trade and commerce." }
+
+    ],
+    category: "Commerce"
+},
+{
+    partNumber: 14,
+    partName: "Services Under the Union and the States",
+    articles: [
+        { number: "308", title: "Article 308", explanation: "Interpretation.", example: "Article 308 provides definitions and interpretations related to the terms 'public service' and 'services under the Union or a State,' which help in understanding various provisions concerning public servants." },
+        { number: "309", title: "Article 309", explanation: "Recruitment and conditions of service of persons serving the Union or a State.", example: "Article 309 empowers the Union and State Legislatures to make laws regarding the recruitment and conditions of service for public servants." },
+        { number: "310", title: "Article 310", explanation: "Tenure of office of persons serving the Union or a State.", example: "Article 310 establishes that persons serving under the Union or a State hold office during the pleasure of the President or the Governor, respectively, subject to certain protections." },
+        { number: "311", title: "Article 311", explanation: "Dismissal, removal or reduction in rank of persons employed in civil capacities under the Union or a State.", example: "Article 311 provides safeguards against arbitrary dismissal or reduction in rank of civil servants, requiring a fair procedure, including an inquiry and the opportunity for a defense." },
+        { number: "312", title: "Article 312", explanation: "All-India Services.", example: "Article 312 allows for the creation of All-India Services, such as the Indian Administrative Service (IAS) and Indian Police Service (IPS), to provide a uniform administrative framework across the country." },
+        { number: "313", title: "Article 313", explanation: "Recruitment and conditions of service of members of All-India Services.", example: "Article 313 mandates that the recruitment and conditions of service for members of All-India Services be determined by laws enacted by Parliament." },
+        { number: "314", title: "Article 314", explanation: "Continuance of existing provisions regarding the All-India Services.", example: "Article 314 provides for the continuation of existing provisions related to the All-India Services until new laws are enacted by Parliament." },
+        { number: "315", title: "Article 315", explanation: "State Public Service Commissions.", example: "Article 315 provides for the establishment of State Public Service Commissions to oversee the recruitment and conditions of service of state civil servants." },
+        { number: "316", title: "Article 316", explanation: "Appointment and conditions of service of members of State Public Service Commissions.", example: "Article 316 outlines the appointment process and conditions of service for members of State Public Service Commissions." },
+        { number: "317", title: "Article 317", explanation: "Removal and suspension of members of State Public Service Commissions.", example: "Article 317 provides the procedure for the removal or suspension of members of State Public Service Commissions, ensuring accountability and fairness." },
+        { number: "318", title: "Article 318", explanation: "Powers of State Public Service Commissions.", example: "Article 318 grants State Public Service Commissions the authority to manage and regulate recruitment, promotions, and other service matters for state employees." },
+        { number: "319", title: "Article 319", explanation: "Prohibition of employment of certain persons in State services.", example: "Article 319 prohibits the employment of individuals who are also members of the State Legislature or certain other positions from serving in State services to avoid conflicts of interest." },
+        { number: "320", title: "Article 320", explanation: "Functions of State Public Service Commissions.", example: "Article 320 specifies the functions of State Public Service Commissions, including advising the Governor on recruitment and service matters." },
+        { number: "321", title: "Article 321", explanation: "Power to extend functions of State Public Service Commissions.", example: "Article 321 allows Parliament to extend the functions of State Public Service Commissions to include matters related to local bodies and other institutions." },
+        { number: "322", title: "Article 322", explanation: "Expenses of the State Public Service Commission.", example: "Article 322 provides that the expenses of the State Public Service Commission shall be charged on the Consolidated Fund of the State, ensuring financial independence." },
+        { number: "323", title: "Article 323", explanation: "Administrative Tribunals.", example: "Article 323 allows for the establishment of Administrative Tribunals to adjudicate disputes related to the recruitment and service conditions of public servants, ensuring timely and specialized resolution of such issues." }
+    ],
+    category: "Public Services"
+},
+{
+    partNumber: '14A',
+    partName: "Tribunals",
+    articles: [
+        { number: "323A", title: "Article 323A", explanation: "Administrative tribunals." },
+        { number: "323B", title: "Article 323B", explanation: "Tribunals for other matters." }
+    ],
+    category: "Judiciary"
+},
+{
+    partNumber: 15,
+    partName: "Elections",
+    articles: [
+        { number: "324", title: "Article 324", explanation: "Superintendence, direction and control of elections to be vested in an Election Commission." },
+        { number: "325", title: "Article 325", explanation: "No person to be ineligible for inclusion in, or to claim to be included in a special electoral roll on grounds of religion, race, caste or sex." },
+        { number: "326", title: "Article 326", explanation: "Elections to the House of the People and to the Legislative Assemblies of States to be on the basis of adult suffrage." },
+        { number: "327", title: "Article 327", explanation: "Power of the State to make provisions with respect to elections to the Legislature of the State.", example: "Article 327 allows States to make laws for the conduct of elections to their Legislature, provided such laws align with the general principles established by the Constitution." },
+        { number: "328", title: "Article 328", explanation: "Power of the State to make provisions with respect to elections to the Legislature of the State.", example: "Article 328 provides States with the authority to make additional provisions regarding the conduct of elections to their Legislative Assemblies, ensuring local governance can address specific needs." },
+        { number: "329", title: "Article 329", explanation: "Bar to interference by courts in electoral matters.", example: "Article 329 restricts the judiciary from intervening in electoral matters, including disputes and processes, to preserve the integrity and independence of the electoral system." },
+        { number: "329A", title: "Article 329A", explanation: "Special provisions as to elections to the House of the People and to the Legislative Assemblies of States.", example: "Article 329A was originally inserted to provide special provisions regarding elections, but it was later repealed. It dealt with aspects like the timing and process of elections under exceptional circumstances." }
+    ],
+    category: "Elections"
+},
+{
+    partNumber: 16,
+    partName: "Special Provisions Relating to Certain Classes",
+    articles: [
+        { number: "330", title: "Article 330", explanation: "Reservation of seats for Scheduled Castes and Scheduled Tribes in the House of the People.", example: "Article 330 provides for the reservation of seats in the Lok Sabha for Scheduled Castes (SCs) and Scheduled Tribes (STs) in proportion to their population in each state." },
+        { number: "331", title: "Article 331", explanation: "Representation of the Anglo-Indian community in the House of the People.", example: "Article 331 allowed the President to nominate up to two Anglo-Indian members to the Lok Sabha if he/she believed that the community was not adequately represented, though this provision was abolished by the 104th Amendment Act of 2019." },
+        { number: "332", title: "Article 332", explanation: "Reservation of seats for Scheduled Castes and Scheduled Tribes in the Legislative Assemblies of the States.", example: "Article 332 mandates the reservation of seats for SCs and STs in the Legislative Assemblies of States in proportion to their population in each state." },
+        { number: "333", title: "Article 333", explanation: "Representation of the Anglo-Indian community in the Legislative Assemblies of the States.", example: "Article 333 allowed the Governor to nominate members from the Anglo-Indian community to the State Legislative Assemblies if deemed necessary, but this provision was abolished by the 104th Amendment Act of 2019." },
+        { number: "334", title: "Article 334", explanation: "Reservation of seats and representation of Anglo-Indians in the House of the People and State Legislatures to cease after a certain period.", example: "Article 334 stipulated that the reservation of seats for SCs and STs and the nomination of Anglo-Indian members would cease after 10 years from the commencement of the Constitution, with periodic renewals if necessary. The Anglo-Indian reservation was abolished in 2019." },
+        { number: "335", title: "Article 335", explanation: "Claims of Scheduled Castes and Scheduled Tribes to services and posts.", example: "Article 335 ensures that the claims of SCs and STs for appointment to public services and posts are considered, while also maintaining efficiency in administration." },
+        { number: "336", title: "Article 336", explanation: "Special provisions for the protection of rights and interests of the Anglo-Indian community.", example: "Article 336 made special provisions for protecting the rights and interests of the Anglo-Indian community, particularly in terms of representation in government services and institutions." },
+        { number: "337", title: "Article 337", explanation: "Special provisions for the protection of rights and interests of the Scheduled Castes and Scheduled Tribes in the states of Assam, Bengal, and the tribal areas.", example: "Article 337 made provisions for protecting the rights and interests of SCs and STs in Assam, West Bengal, and certain tribal areas to ensure their fair representation and welfare." },
+        { number: "338", title: "Article 338", explanation: "National Commission for Scheduled Castes.", example: "Article 338 provides for the establishment of a National Commission for Scheduled Castes to investigate and monitor the safeguards provided for SCs and to make recommendations for their welfare." },
+        { number: "339", title: "Article 339", explanation: "Commission for the Scheduled Tribes.", example: "Article 339 provides for the appointment of a Commission to investigate and monitor the safeguards and welfare measures for Scheduled Tribes, ensuring their protection and advancement." },
+        { number: "340", title: "Article 340", explanation: "Appointment of a Commission to investigate the conditions of backward classes.", example: "Article 340 empowers the President to appoint a Commission to investigate the conditions and needs of backward classes and to make recommendations for their upliftment." },
+        { number: "341", title: "Article 341", explanation: "Scheduled Castes to be specified in the Constitution.", example: "Article 341 allows the President to specify which castes are to be recognized as Scheduled Castes in different states and Union territories, based on their socio-economic conditions." },
+        { number: "342", title: "Article 342", explanation: "Scheduled Tribes to be specified in the Constitution.", example: "Article 342 enables the President to specify which tribes are to be recognized as Scheduled Tribes in different states and Union territories, ensuring their inclusion in special welfare programs and provisions." }
+    ],
+    category: "Special Provisions"
+},
+{
+    partNumber: 17,
+    partName: "Official Language",
+    articles: [
+        { number: "343", title: "Article 343", explanation: "Official language of the Union.", example: "Article 343 designates Hindi as the official language of the Union, while also allowing the use of English for official purposes as specified by law." },
+        { number: "344", title: "Article 344", explanation: "Commission and Committee of Parliament on official language.", example: "Article 344 provides for the establishment of a Commission and a Committee of Parliament to examine and report on the use of the official language and make recommendations for its development and implementation." },
+        { number: "345", title: "Article 345", explanation: "Official language or languages of a State.", example: "Article 345 allows each state to adopt its own official language(s) for use in state administration, as determined by state legislation." },
+        { number: "346", title: "Article 346", explanation: "Official language for communication between one State and the Union.", example: "Article 346 provides that the official language for communication between a state and the Union government shall be Hindi, unless otherwise specified by law." },
+        { number: "347", title: "Article 347", explanation: "Special provisions relating to the language spoken by a section of the population of a State.", example: "Article 347 allows the President to recognize a language spoken by a significant section of the population of a state for official use if the state government requests it." },
+        { number: "348", title: "Article 348", explanation: "Language of the Supreme Court and High Courts and of the proceedings in the Supreme Court and in the High Courts.", example: "Article 348 stipulates that the language used in the Supreme Court and High Courts, and for their proceedings, shall be English unless the Supreme Court or High Courts decide otherwise." },
+        { number: "349", title: "Article 349", explanation: "Special provision for linguistic minorities.", example: "Article 349 provides that a Commission may be appointed to investigate and report on the safeguards provided for linguistic minorities in any state." },
+        { number: "350", title: "Article 350", explanation: "Facilities for instruction in mother-tongue at primary stage.", example: "Article 350 ensures that every linguistic minority has the right to receive education in their mother tongue at the primary stage, promoting cultural and linguistic diversity." },
+        { number: "351", title: "Article 351", explanation: "Directive for development of Hindi as a link language.", example: "Article 351 directs the promotion and development of Hindi as a link language, ensuring it is enriched with vocabulary from various languages and is used effectively in communication across India." }
+
+    ],
+    category: "Language"
+},
+{
+    partNumber: 18,
+    partName: "Emergency Provisions",
+    articles: [
+        { number: "352", title: "Article 352", explanation: "Proclamation of Emergency.", example: "Article 352 allows the President to declare a National Emergency if there is a threat to the security of India due to war, external aggression, or armed rebellion." },
+        { number: "353", title: "Article 353", explanation: "Effect of Proclamation of Emergency.", example: "Article 353 outlines the effects of a National Emergency, including the centralization of power and the suspension of certain state-level rights and responsibilities." },
+        { number: "354", title: "Article 354", explanation: "Application of provisions relating to distribution of revenues while a Proclamation of Emergency is in operation.", example: "Article 354 provides for the distribution of financial resources between the Union and State governments during a National Emergency, ensuring that the Union can manage resources effectively." },
+        { number: "355", title: "Article 355", explanation: "Duty of the Union to protect States against external aggression and internal disturbance.", example: "Article 355 mandates the Union to ensure that every State is protected against external aggression and internal disturbance, maintaining the integrity and security of the nation." },
+        { number: "356", title: "Article 356", explanation: "Provisions in case of failure of constitutional machinery in States.", example: "Article 356 allows the President to dissolve the State government and impose President's Rule if the State government fails to function according to the Constitution." },
+        { number: "357", title: "Article 357", explanation: "Exercise of the powers of the State government during President's Rule.", example: "Article 357 outlines how the powers and responsibilities of the State government are to be exercised by the Union government during the imposition of President's Rule." },
+        { number: "358", title: "Article 358", explanation: "Suspension of the enforcement of Fundamental Rights during Emergency.", example: "Article 358 allows for the suspension of certain Fundamental Rights, specifically those relating to freedom of speech and expression, during a National Emergency." },
+        { number: "359", title: "Article 359", explanation: "Suspension of Fundamental Rights during Emergency in the case of internal disturbance.", example: "Article 359 permits the suspension of Fundamental Rights during an Emergency declared due to internal disturbance, as specified by the President’s proclamation." },
+        { number: "360", title: "Article 360", explanation: "Proclamation of Financial Emergency.", example: "Article 360 allows the President to declare a Financial Emergency if the financial stability of India is threatened, leading to possible measures for economic stabilization and control." } 
+    ],
+    category: "Emergency Provisions"
+},
+{
+    partNumber: 19,
+    partName: "Miscellaneous",
+    articles: [
+        { number: "361", title: "Article 361", explanation: "Protection of President and Governors and Rajpramukhs.", example: "Article 361 provides immunity to the President, Governors, and Rajpramukhs from legal proceedings, protecting them from being sued for actions performed in their official capacity." },
+        { number: "362", title: "Article 362", explanation: "Rights and privileges of Rulers of Indian States.", example: "Article 362 recognizes the rights and privileges of the former Rulers of Indian States, particularly concerning the treaties and agreements they had with the Union." },
+        { number: "363", title: "Article 363", explanation: "Disputes relating to the validity of certain acts and agreements.", example: "Article 363 addresses disputes regarding the validity of certain acts and agreements, particularly those related to the former Rulers of Indian States and their rights." },
+        { number: "364", title: "Article 364", explanation: "Continuation of existing laws and provisions.", example: "Article 364 ensures that existing laws and provisions relating to the administration of certain territories or states continue to be in force until altered by new legislation." },
+        { number: "365", title: "Article 365", explanation: "Failure of the State to comply with directions given by the Union.", example: "Article 365 allows the President to take necessary actions, including dissolving the State government, if the State fails to comply with directives given by the Union government." },
+        { number: "366", title: "Article 366", explanation: "Definitions.", example: "Article 366 provides definitions for certain terms used in the Constitution, such as 'State', 'Government', and 'Law', to ensure clarity and uniformity in interpretation." },
+        { number: "367", title: "Article 367", explanation: "Interpretation.", example: "Article 367 provides rules for interpreting the provisions of the Constitution, ensuring that terms and expressions are understood consistently throughout the document." }
+    ],
+    category: "Miscellaneous"
+},
+{
+    partNumber: 20,
+    partName: "Amendment of the Constitution",
+    articles: [
+        { number: "368", title: "Article 368", explanation: "Power of Parliament to amend the Constitution and procedure therefor." }
+    ],
+    category: "Amendment of the Constitution"
+},
+{
+    partNumber: 21,
+    partName: "Temporary, Transitional and Special Provisions",
+    articles: [
+        { number: "369", title: "Article 369", explanation: "Temporary power to Parliament to make laws with respect to certain matters in the State List as if they were matters in the Concurrent List.", example: "Article 369 gave Parliament temporary power to legislate on certain matters that were initially in the State List, as if they were in the Concurrent List, during the transition period post-Independence." },
+        { number: "370", title: "Article 370", explanation: "Temporary provisions with respect to the State of Jammu and Kashmir.", example: "Article 370 provided special autonomous status to Jammu and Kashmir, allowing it to have its own constitution and governance framework. This article was effectively abrogated by the Presidential Order and the Jammu and Kashmir Reorganization Act of 2019." },
+        { number: "371", title: "Article 371", explanation: "Special provisions with respect to certain states.", example: "Article 371 grants special provisions for certain states, including Maharashtra, Gujarat, and others, to address their unique administrative and cultural needs." },
+        { number: "371A", title: "Article 371A", explanation: "Special provisions with respect to the State of Nagaland.", example: "Article 371A provides special autonomy and protection for Nagaland, including safeguards for the Nagas' customary practices and their control over land and resources." },
+        { number: "371B", title: "Article 371B", explanation: "Special provisions with respect to the State of Assam.", example: "Article 371B provides for special provisions for the State of Assam, including the establishment of a committee to address issues concerning the state's hill areas." },
+        { number: "371C", title: "Article 371C", explanation: "Special provisions with respect to the State of Manipur.", example: "Article 371C provides for the creation of a committee to ensure that the needs and interests of the hill areas in Manipur are addressed effectively." },
+        { number: "371D", title: "Article 371D", explanation: "Special provisions with respect to the State of Andhra Pradesh and Telangana.", example: "Article 371D provides special provisions for Andhra Pradesh and Telangana to ensure equitable opportunities in public employment and education." },
+        { number: "371E", title: "Article 371E", explanation: "Provision for establishment of a University in Andhra Pradesh.", example: "Article 371E enables the establishment of a university in Andhra Pradesh to promote higher education and address regional educational needs." },
+        { number: "371F", title: "Article 371F", explanation: "Special provisions with respect to the State of Sikkim.", example: "Article 371F grants special provisions to Sikkim, including protection of its cultural identity and arrangements for the establishment of a Legislative Assembly and Council of Ministers." },
+        { number: "372", title: "Article 372", explanation: "Continuance in force of existing laws.", example: "Article 372 provides that all existing laws shall continue in force until altered or repealed by a competent authority." },
+        { number: "373", title: "Article 373", explanation: "Power of President to make laws.", example: "Article 373 authorizes the President to make laws for Union Territories or areas where there is no Legislature." },
+        { number: "374", title: "Article 374", explanation: "Power to dissolve the Legislative Assembly of the State of Jammu and Kashmir.", example: "Article 374 gives the President the power to dissolve the Legislative Assembly of Jammu and Kashmir, in consultation with the Governor." },
+        { number: "375", title: "Article 375", explanation: "Continuance of existing laws in the State of Jammu and Kashmir.", example: "Article 375 ensures that existing laws in Jammu and Kashmir remain effective until they are amended or repealed by the authorities." },
+        { number: "376", title: "Article 376", explanation: "Special provisions for the State of Jammu and Kashmir.", example: "Article 376 made provisions for the special status of Jammu and Kashmir, including the appointment of a Chief Minister and the functioning of the State Legislature." },
+        { number: "377", title: "Article 377", explanation: "Special provisions with respect to the State of Arunachal Pradesh.", example: "Article 377 provides for special provisions for Arunachal Pradesh to address its unique administrative and cultural requirements." },
+        { number: "378", title: "Article 378", explanation: "Special provisions with respect to the State of Mizoram.", example: "Article 378 provides special provisions for Mizoram, including autonomy to address its distinct cultural and administrative needs." },
+        { number: "379", title: "Article 379", explanation: "Special provisions with respect to the State of Nagaland.", example: "Article 379 provides for special provisions concerning Nagaland, ensuring that its unique cultural and historical aspects are considered in governance." },
+        { number: "380", title: "Article 380", explanation: "Special provisions with respect to the State of Meghalaya.", example: "Article 380 provides for special provisions for Meghalaya to address its unique administrative and cultural characteristics." },
+        { number: "381", title: "Article 381", explanation: "Special provisions with respect to the State of Tripura.", example: "Article 381 provides special provisions for Tripura, recognizing its distinct needs and ensuring effective governance." },
+        { number: "382", title: "Article 382", explanation: "Special provisions with respect to the State of Goa.", example: "Article 382 provides special provisions for Goa, addressing its unique administrative and cultural context." },
+        { number: "383", title: "Article 383", explanation: "Special provisions with respect to the State of Punjab.", example: "Article 383 includes provisions for Punjab to address its specific administrative and cultural requirements." },
+        { number: "384", title: "Article 384", explanation: "Special provisions with respect to the State of Haryana.", example: "Article 384 provides special provisions for Haryana to ensure effective administration considering its unique regional characteristics." },
+        { number: "385", title: "Article 385", explanation: "Special provisions with respect to the State of Himachal Pradesh.", example: "Article 385 addresses special provisions for Himachal Pradesh to account for its unique geographic and cultural features." },
+        { number: "386", title: "Article 386", explanation: "Special provisions with respect to the State of Uttarakhand.", example: "Article 386 provides for special provisions for Uttarakhand, recognizing its unique administrative and cultural needs." },
+        { number: "387", title: "Article 387", explanation: "Special provisions with respect to the State of Chhattisgarh.", example: "Article 387 ensures special provisions for Chhattisgarh, focusing on its administrative and developmental needs." },
+        { number: "388", title: "Article 388", explanation: "Special provisions with respect to the State of Jharkhand.", example: "Article 388 provides for special provisions for Jharkhand to address its specific regional and administrative challenges." },
+        { number: "389", title: "Article 389", explanation: "Special provisions with respect to the State of West Bengal.", example: "Article 389 includes provisions for West Bengal to address its distinct administrative and cultural context." },
+        { number: "390", title: "Article 390", explanation: "Special provisions with respect to the State of Tamil Nadu.", example: "Article 390 provides special provisions for Tamil Nadu, recognizing its unique administrative and cultural requirements." },
+        { number: "391", title: "Article 391", explanation: "Special provisions with respect to the State of Kerala.", example: "Article 391 ensures special provisions for Kerala to address its specific administrative and developmental needs." },
+        { number: "392", title: "Article 392", explanation: "Power to amend the Constitution.", example: "Article 392 authorizes the President to make provisions for any matter not covered by the Constitution, ensuring that the Constitution remains flexible and adaptable." }
+
+    ],
+    category: "Temporary and Transitional Provisions"
+},
+{
+    partNumber: 22,
+    partName: "Short Title, Commencement, Authoritative Text in Hindi and Repeals",
+    articles: [
+        { number: "393", title: "Article 393", explanation: "Short title.", example: "This Act may be cited as the 'Public Health Act, 2024'."},
+        { number: "394", title: "Article 394", explanation: "Commencement.", example: "This Act shall come into force on the 1st day of January, 2025."},
+        { number: "394A", title: "Article 394A", explanation: "Authoritative text in the Hindi language.", example: "In case of any discrepancy between the English and Hindi texts of this Act, the Hindi text shall prevail."},
+        { number: "395", title: "Article 395", explanation: "Repeals.", example: "The 'Old Public Health Act, 1985' is hereby repealed."}
+    ],
+    category: "General Provisions"
+}
+];
+        const partsContainer = document.getElementById('partsContainer');
+        const articleDetail = document.getElementById('articleDetail');
+
+        // Function to create Part Blocks
+        function createPartBlocks() {
+            constitutionParts.forEach(part => {
+                const partBlock = document.createElement('div');
+                partBlock.classList.add('part-block');
+                partBlock.innerHTML = `
+                    <div class="category">${part.category}</div>
+                    <h3>Part ${part.partNumber}: ${part.partName}</h3>
+                `;
+
+                // Single-click: Toggle articles display
+                partBlock.addEventListener('click', () => {
+                    toggleArticles(part, partBlock);
+                });
+
+                // Double-click: Close the part, articles, and details
+                partBlock.addEventListener('dblclick', () => {
+                    closePart(partBlock);
+                });
+
+                partsContainer.appendChild(partBlock);
+            });
+        }
+
+        // Function to toggle Articles Display
+// Function to toggle the Part block, articles, and details on a single click
+function toggleArticles(part, partBlock) {
+    // Check if this part block is currently selected (expanded)
+    const isSelected = partBlock.classList.contains('selected');
+
+    // If selected, collapse it
+    if (isSelected) {
+        partBlock.classList.remove('selected'); // Collapse the part block
+
+        // Hide the articles container if it exists
+        const articlesContainer = partBlock.nextElementSibling;
+        if (articlesContainer && articlesContainer.classList.contains('articles-container')) {
+            articlesContainer.classList.remove('active'); // Hide the articles
+        }
+    } else {
+        // If not selected, first close any open articles and reset other part blocks
+        const openArticles = document.querySelectorAll('.articles-container.active');
+        const openParts = document.querySelectorAll('.part-block.selected');
+        openArticles.forEach(container => {
+            container.classList.remove('active');
+        });
+        openParts.forEach(part => {
+            part.classList.remove('selected');
+        });
+
+        // Expand this part block
+        partBlock.classList.add('selected');
+
+        // Check if articles are already displayed
+        let articlesContainer = partBlock.nextElementSibling;
+        if (articlesContainer && articlesContainer.classList.contains('articles-container')) {
+            articlesContainer.classList.add('active'); // Show the articles
+        } else {
+            // Create Articles Container
+            articlesContainer = document.createElement('div');
+            articlesContainer.classList.add('articles-container');
+
+            const articleButtonsDiv = document.createElement('div');
+            articleButtonsDiv.classList.add('article-buttons');
+
+            part.articles.forEach(article => {
+                const articleBtn = document.createElement('button');
+                articleBtn.classList.add('article-button');
+                articleBtn.textContent = `Article ${article.number}`;
+                articleBtn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent triggering partBlock click
+                    displayArticleDetail(article, articlesContainer);
+                });
+                articleButtonsDiv.appendChild(articleBtn);
+            });
+
+            articlesContainer.appendChild(articleButtonsDiv);
+            partBlock.parentNode.insertBefore(articlesContainer, partBlock.nextSibling);
+            articlesContainer.classList.add('active');
+        }
+        partBlock.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+// Function to Display Article Detail
+function displayArticleDetail(article, container) {
+    // Remove any previously displayed article details
+    const existingArticleDetails = container.querySelector('.article-detail');
+    if (existingArticleDetails) {
+        existingArticleDetails.remove();
+    }
+
+    const articleDetailDiv = document.createElement('div');
+    articleDetailDiv.classList.add('article-detail');
+    articleDetailDiv.innerHTML = `
+        <h2>${article.title}</h2>
+        <h4>${article.explanation}</h4>
+        <p>${article.example}</p>
+    `;
+
+    container.appendChild(articleDetailDiv);
+}
+
+        // Initialize the Page
+        createPartBlocks();
+    </script>
+
+<script>
+    window.embeddedChatbotConfig = {
+      chatbotId: "nHMjyMYCSfpq27coMHn6b",
+      domain: "www.chatbase.co"
+    }
+  </script>
+  <script src="https://www.chatbase.co/embed.min.js" chatbotId="nHMjyMYCSfpq27coMHn6b" domain="www.chatbase.co" defer>
+  </script>
+
+</body>
+</html>

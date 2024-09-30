@@ -1,0 +1,134 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f0f0f5;
+    color: #50228b;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+header {
+    background-color: #ff671f;
+    padding: 20px;
+    text-align: center;
+    color: white;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+header p {
+    font-size: 1.2rem;
+}
+
+main {
+    flex: 1;
+    padding: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.game-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    width: 80%;
+}
+
+.game-tile {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-align: center;
+}
+
+.game-tile:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+}
+
+.game-icon {
+    font-size: 4rem;  /* Increased the icon size */
+    margin-bottom: 20px;
+}
+
+.game-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #333;
+    margin-top: 10px;
+}
+
+footer {
+    background-color: #046a38;
+    padding: 10px;
+    text-align: center;
+    color: white;
+}
+
+/* Media query for mobile devices to make icons and titles look good */
+@media (max-width: 768px) {
+    .game-tile {
+        padding: 20px;
+    }
+
+    .game-icon {
+        font-size: 3.5rem; /* Adjust size for mobile */
+    }
+
+    .game-title {
+        font-size: 1.2rem;
+    }
+}
+.game-board {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+#board {
+    border: 5px solid #6200ea;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+#rollDice {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    background-color: #6200ea;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#rollDice:hover {
+    background-color: #3700b3;
+}
+
+#message {
+    margin-top: 20px;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+footer {
+    margin-top: 30px;
+}

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPC Explorer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .heading{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 10px;
+        }
+
+        .heading h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        .chapter-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .chapter-block {
+            background-color: #FF671F;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 300px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            position: relative;
+        }
+
+        .chapter-block:hover {
+            background-color: #046838;
+        }
+
+        .chapter-block.selected {
+            background-color: #FF671F;
+            opacity: 0.66;
+            width: 100%; /* Expand when clicked */
+        }
+
+        .section-container {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .section-container.active {
+            display: block;
+            width: 100%;
+        }
+
+        .section-button {
+            background-color: #06038D;
+            color: white;
+            margin: 10px;
+            border: none;
+            padding: 12px;
+            font-size: 1.1em;
+            text-align: center;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 130px;
+            text-align: left;
+        }
+
+        .section-button:hover {
+            background-color: #007B9E;
+        }
+
+        .section-detail {
+            background-color: #fff;
+            color: black;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="heading">
+        <h1>Indian Penal Code Explorer</h1>
+    </div>
+
+    <div class="chapter-container" id="chapterContainer">
+        <!-- Chapter cards will be dynamically generated here -->
+    </div>
+    <div id="sectionDetail"></div>
+
+
+
+    <script src="sections.js"></script> <!-- Link the sections.js file here -->
+    <script>
+            const chapterContainer = document.getElementById('chapterContainer');
+
+// Dynamically generate chapter blocks
+ipcData.forEach((chapter) => {
+    const chapterBlock = document.createElement('div');
+    chapterBlock.classList.add('chapter-block');
+    chapterBlock.innerHTML = `
+        <h2>Chapter ${chapter.chapter}: ${chapter.chapterName}</h2>
+    `;
+    
+    chapterBlock.addEventListener('click', () => {
+        toggleSections(chapterBlock, chapter.sections);
+    });
+    
+    chapterContainer.appendChild(chapterBlock);
+});
+
+// Toggle section visibility on chapter click
+function toggleSections(chapterBlock, sections) {
+    const sectionContainer = chapterBlock.querySelector('.section-container');
+    const isAlreadyActive = chapterBlock.classList.contains('selected');
+    
+    // If the sectionContainer exists, we just show/hide it without creating a new one
+    if (sectionContainer) {
+        if (event.target.tagName.toLowerCase() !== 'button') {
+            sectionContainer.classList.toggle('active');
+        }
+    } else {
+        const newSectionContainer = document.createElement('div');
+        newSectionContainer.classList.add('section-container');
+        newSectionContainer.classList.add('active');
+        
+        // Display sections inside the clicked chapter
+        sections.forEach(section => {
+            const sectionButton = document.createElement('button');
+            sectionButton.classList.add('section-button');
+            sectionButton.textContent = `Section ${section.sectionNumber}`;
+            
+            sectionButton.addEventListener('click', () => {
+                displaySectionDetail(section, chapterBlock);
+            });
+
+            newSectionContainer.appendChild(sectionButton);
+        });
+
+        chapterBlock.appendChild(newSectionContainer);
+    }
+
+    // Keep the chapter block expanded
+    chapterBlock.classList.add('selected');
+}
+
+// Display section details just below the active chapter block
+function displaySectionDetail(section, chapterBlock) {
+    let sectionDetail = chapterBlock.querySelector('.section-detail');
+    
+    // If sectionDetail exists, update it; otherwise, create a new one
+    if (!sectionDetail) {
+        sectionDetail = document.createElement('div');
+        sectionDetail.classList.add('section-detail');
+        chapterBlock.appendChild(sectionDetail);
+    }
+
+    sectionDetail.innerHTML = `
+        <h3>Section ${section.sectionNumber}</h3>
+        <p>${section.description}</p>
+    `; 
+}
+    </script>
+</body>
+</html>
