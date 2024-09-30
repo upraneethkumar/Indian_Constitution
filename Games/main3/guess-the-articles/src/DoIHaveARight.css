@@ -1,0 +1,117 @@
+/* General Styles */
+.App {
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+button {
+  cursor: pointer;
+}
+
+h2 {
+  color: #333;
+}
+
+p {
+  color: #555;
+}
+
+/* Home Page */
+.home-page {
+  padding: 20px;
+}
+
+.start-button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  font-size: 18px;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.start-button:hover {
+  background-color: #45a049;
+}
+
+/* Case Selection */
+.case-selection {
+  padding: 20px;
+}
+
+.case-button {
+  background-color: #0bb1df;
+  border: 1px solid #ddd;
+  padding: 15px 25px;
+  margin: 10px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.case-button:hover {
+  background-color: #27d524;
+}
+
+/* Article Selection */
+.article-selection {
+  padding: 20px;
+}
+
+.right-list {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.right-button {
+  background-color: #c0c0c0;
+  border: 1px solid #ddd;
+  padding: 12px 18px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.right-button:hover {
+  background-color: #a0a0a0;
+}
+
+.right-button.selected {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.submit-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.submit-button:hover {
+  background-color: #45a049;
+}
+
+/* Result Page */
+.result {
+  padding: 20px;
+}
+
+.restart-button {
+  margin-top: 30px;
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #ff6347;
+  color: white;
+  border: none;
+  border-radius: 8px;
+}
+
+.restart-button:hover {
+  background-color: #e5533a;
+}

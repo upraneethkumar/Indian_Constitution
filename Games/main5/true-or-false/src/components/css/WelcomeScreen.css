@@ -1,0 +1,45 @@
+.welcome-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+h1, h3 {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.difficulty-buttons, .category-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border: 2px solid #000;
+  background-color: #f0f0f0;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #ccc;
+}
+
+.start-button {
+  background-color: #4CAF50;
+  color: white;
+  font-size: 18px;
+  padding: 12px 24px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.start-button:hover {
+  background-color: #45a049;
+}

@@ -1,0 +1,103 @@
+body {
+  font-family: 'Roboto', sans-serif;
+  text-align: center;
+  background: linear-gradient(135deg, #f7f7f7, #d4e157);
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  color: #212121;
+  margin-top: 30px;
+  font-size: 2.5rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+button {
+  font-size: 1rem;
+  padding: 10px 20px;
+  margin: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background: #007bff;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.game-board {
+  display: grid;
+  grid-template-columns: repeat(4, 120px);
+  gap: 15px;
+  justify-content: center;
+  margin: 50px auto;
+  max-width: 600px;
+}
+
+.card {
+  width: 120px;
+  height: 120px;
+  background: #ffffff;
+  color: #212121;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  border: 2px solid #ddd;
+}
+
+.card:hover {
+  transform: scale(1.05);
+  background-color: #f0f0f0;
+}
+
+.flipped {
+  background: #ffe57f;
+  color: #333;
+}
+
+.matched {
+  background: #76c7c0;
+  color: #fff;
+  cursor: default;
+  border: 2px solid #4ba3a0;
+}
+
+.correct {
+  animation: pulse 1s infinite;
+  border: 2px solid #4ba3a0;
+}
+
+.incorrect {
+  background: #ff6f61;
+  color: #fff;
+  border: 2px solid #d84315;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+#message {
+  margin-top: 30px;
+  font-size: 1.5rem;
+  color: #212121;
+  font-weight: bold;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+}
