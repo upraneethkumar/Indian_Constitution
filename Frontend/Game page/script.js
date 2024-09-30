@@ -1,5 +1,5 @@
 const games = [
-    { title: 'Artical Quiz', icon: '🎲', link: 'https://66fa9dd466ee802464fa4cb3--sparkly-pixie-0681ce.netlify.app/' },  // Add link to the game
+    { title: 'Constitution Articles Quiz', icon: '🎲', link: 'https://66fa9dd466ee802464fa4cb3--sparkly-pixie-0681ce.netlify.app/' },  // Add link to the game
     { title: 'Constitution Match', icon: '🧠',link:'https://66f981821e32dd2339292df7--aquamarine-lolly-17d34f.netlify.app/',  },
     { title: 'Guess the Right Atricle', icon: '👨🏻‍⚖️', link:'https://66faaa9988d1820dddf6f08b--tranquil-basbousa-1a679a.netlify.app/' },
     { title: 'Fill In The Blanks', icon: '📝', link:'https://66fab859fb17da20ce8cba13--stirring-quokka-1de48e.netlify.app/' },
